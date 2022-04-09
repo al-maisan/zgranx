@@ -1,0 +1,15 @@
+syntax = "proto3";
+package admin;
+
+service Monitor {
+  rpc Ping (PingRequest) returns (PingReply) {}
+}
+
+message PingRequest {
+  Timestamp reqt = 1;
+}
+
+message PingReply {
+  Timestamp rest = 1;
+  string version = 2;
+}
