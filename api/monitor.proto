@@ -5,14 +5,14 @@ option go_package = "internal/monitor";
 
 
 service Monitor {
-  rpc Ping (PingRequest) returns (PingReply) {}
+  rpc Ping (PingRequest) returns (PingResponse) {}
 }
 
 message PingRequest {
-  google.protobuf.Timestamp reqt = 1;
+  google.protobuf.Timestamp request_time = 1;
 }
 
-message PingReply {
-  google.protobuf.Timestamp rest = 1;
+message PingResponse {
+  google.protobuf.Timestamp response_time = 1;
   string version = 2;
 }
