@@ -1,15 +1,18 @@
 syntax = "proto3";
-package admin;
+import "google/protobuf/timestamp.proto";
+
+option go_package = "internal/monitor";
+
 
 service Monitor {
   rpc Ping (PingRequest) returns (PingReply) {}
 }
 
 message PingRequest {
-  Timestamp reqt = 1;
+  google.protobuf.Timestamp reqt = 1;
 }
 
 message PingReply {
-  Timestamp rest = 1;
+  google.protobuf.Timestamp rest = 1;
   string version = 2;
 }
