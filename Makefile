@@ -1,4 +1,4 @@
-.PHONY: all build
+.PHONY: all build proto
 
 BIN_DIR := ./bin
 version := $(shell git rev-parse --short=12 HEAD)
@@ -15,4 +15,5 @@ build: proto
 
 
 proto:
+	$(shell find internal/ | grep '\.pb.go$' | xargs rm -f)
 	protoc --go_out=. --go-grpc_out=. api/monitor.proto

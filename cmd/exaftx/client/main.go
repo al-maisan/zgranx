@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/al-maisan/zgranx/internal/monitor"
+	pb "github.com/al-maisan/zgranx/internal/proto/monitor"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
