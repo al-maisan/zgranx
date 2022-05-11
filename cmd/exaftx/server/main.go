@@ -54,14 +54,19 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 	} else {
 		log.Printf("exa GetBalance request: exchange: %s", in.GetExchange())
 	}
-	uid := in.GetUserId()
-	if uid < 1 {
-		st := status.New(codes.InvalidArgument, "invalid user id")
-		return nil, st.Err()
-	}
 	re := in.GetExchange().String()
 	if strings.ToLower(re) != strings.ToLower(*exchange) {
 		st := status.New(codes.InvalidArgument, fmt.Sprintf("wrong exchange: '%s'", re))
+		return nil, st.Err()
+	}
+	apiKey := in.GetApiKey()
+	if apiKey == "" {
+		st := status.New(codes.InvalidArgument, "no API key")
+		return nil, st.Err()
+	}
+	apiSecret := in.GetApiSecret()
+	if apiSecret == "" {
+		st := status.New(codes.InvalidArgument, "no API secret")
 		return nil, st.Err()
 	}
 	resp := exa.GetBalanceResponse{

@@ -38,7 +38,7 @@ func main() {
 	log.Printf("version: %s\n", r1.GetVersion())
 
 	cexa := exa.NewEXAClient(conn)
-	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", UserId: 0, Exchange: exa.ExchangeType_FTX})
+	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", Exchange: exa.ExchangeType_FTX})
 	if err != nil {
 		log.Printf("failed to get balance 1: %v\n", err)
 	} else {
@@ -46,7 +46,7 @@ func main() {
 	}
 
 	asset := "MVN"
-	r3, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "2", UserId: 123, Asset: &asset, Exchange: exa.ExchangeType_KUCOIN})
+	r3, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "2", ApiKey: "key", ApiSecret: "secret", Asset: &asset, Exchange: exa.ExchangeType_KUCOIN})
 	if err != nil {
 		log.Printf("failed to get balance 2: %v\n", err)
 	} else {
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	asset = "BTC"
-	r4, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "3", UserId: 456, Asset: &asset, Exchange: exa.ExchangeType_FTX})
+	r4, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "3", ApiKey: "key", ApiSecret: "secret", Asset: &asset, Exchange: exa.ExchangeType_FTX})
 	if err != nil {
 		log.Printf("failed to get balance 3: %v\n", err)
 	} else {

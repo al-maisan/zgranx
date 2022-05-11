@@ -19,9 +19,10 @@ enum ExchangeType {
 message GetBalanceRequest {
   google.protobuf.Timestamp request_time = 1;
   string request_id = 2;
-  uint32 user_id = 3;
-  ExchangeType exchange = 4;
-  optional string asset = 5;
+  string api_key = 3;
+  string api_secret = 4;
+  ExchangeType exchange = 5;
+  optional string asset = 6;
 }
 
 message GetBalanceResponse {
