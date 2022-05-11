@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS user;
+
+CREATE TABLE user (
+     id MEDIUMINT NOT NULL AUTO_INCREMENT,
+     name VARCHAR(30) NOT NULL,
+     email VARCHAR(64) NOT NULL,
+     apikey TINYBLOB NOT NULL,
+     apisecret TINYBLOB NOT NULL,
+     PRIMARY KEY (id)
+ );
