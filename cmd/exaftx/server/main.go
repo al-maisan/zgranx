@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	exa "github.com/al-maisan/zgranx/internal/proto/exa"
 	monitor "github.com/al-maisan/zgranx/internal/proto/monitor"
@@ -16,13 +17,24 @@ import (
 )
 
 var (
-	port              = flag.Int("port", 50051, "The server port")
+	port              = flag.Int("port", 50051, "server port")
 	bts, rev, version string
+	exchange          = flag.String("exchange", "", "exchange to operate on")
 )
 
 type server struct {
 	monitor.UnimplementedMonitorServer
 	exa.UnimplementedEXAServer
+}
+
+func exchangeIsValid(exchange string) bool {
+	exchanges := []string{"binance", "ftx", "kraken", "kucoin", "gate_io"}
+	for _, e := range exchanges {
+		if exchange == e {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.PingResponse, error) {
@@ -47,6 +59,11 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 		st := status.New(codes.InvalidArgument, "invalid user id")
 		return nil, st.Err()
 	}
+	re := in.GetExchange().String()
+	if strings.ToLower(re) != strings.ToLower(*exchange) {
+		st := status.New(codes.InvalidArgument, fmt.Sprintf("wrong exchange: '%s'", re))
+		return nil, st.Err()
+	}
 	resp := exa.GetBalanceResponse{
 		ResponseTime: timestamppb.Now(),
 		RequestId:    in.GetRequestId(),
@@ -58,6 +75,12 @@ func main() {
 	flag.Parse()
 	version = fmt.Sprintf("%s::%s", bts, rev)
 	fmt.Printf("exaftx: %s\n", version)
+	if *exchange == "" {
+		log.Fatalf("exchange parameter not specified")
+	}
+	if !exchangeIsValid(*exchange) {
+		log.Fatalf("invalid exchange: %s", *exchange)
+	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

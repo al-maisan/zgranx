@@ -14,11 +14,12 @@ import (
 )
 
 var (
-	addr = flag.String("addr", "localhost:50051", "the address to connect to")
+	addr = flag.String("addr", "localhost:50051", "address to connect to")
 )
 
 func main() {
 	flag.Parse()
+
 	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -48,6 +49,15 @@ func main() {
 	r3, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "2", UserId: 123, Asset: &asset, Exchange: exa.ExchangeType_KUCOIN})
 	if err != nil {
 		log.Printf("failed to get balance 2: %v\n", err)
+	} else {
+		log.Printf("balance 2: response time: %v\n", r3.GetResponseTime().AsTime())
 	}
-	log.Printf("balance 2: response time: %v\n", r3.GetResponseTime().AsTime())
+
+	asset = "BTC"
+	r4, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "3", UserId: 456, Asset: &asset, Exchange: exa.ExchangeType_FTX})
+	if err != nil {
+		log.Printf("failed to get balance 3: %v\n", err)
+	} else {
+		log.Printf("balance 3: response time: %v\n", r4.GetResponseTime().AsTime())
+	}
 }
