@@ -6,7 +6,8 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/al-maisan/zgranx/internal/proto/monitor"
+	exa "github.com/al-maisan/zgranx/internal/proto/exa"
+	monitor "github.com/al-maisan/zgranx/internal/proto/monitor"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -23,15 +24,30 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewMonitorClient(conn)
+	cmon := monitor.NewMonitorClient(conn)
 
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.Ping(ctx, &pb.PingRequest{RequestTime: timestamppb.Now()})
+	r1, err := cmon.Ping(ctx, &monitor.PingRequest{RequestTime: timestamppb.Now()})
 	if err != nil {
-		log.Fatalf("could not ping: %v", err)
+		log.Printf("could not ping: %v\n", err)
 	}
-	log.Printf("response time: %v\n", r.GetResponseTime().AsTime())
-	log.Printf("version: %s\n", r.GetVersion())
+	log.Printf("response time: %v\n", r1.GetResponseTime().AsTime())
+	log.Printf("version: %s\n", r1.GetVersion())
+
+	cexa := exa.NewEXAClient(conn)
+	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", UserId: 0})
+	if err != nil {
+		log.Printf("failed to get balance 1: %v\n", err)
+	} else {
+		log.Printf("balance 1: response time: %v\n", r2.GetResponseTime().AsTime())
+	}
+
+	asset := "MVN"
+	r3, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "2", UserId: 123, Asset: &asset})
+	if err != nil {
+		log.Printf("failed to get balance 2: %v\n", err)
+	}
+	log.Printf("balance 2: response time: %v\n", r3.GetResponseTime().AsTime())
 }

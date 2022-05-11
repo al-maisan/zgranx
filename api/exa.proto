@@ -1,0 +1,27 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "internal/proto/exa";
+
+
+service EXA {
+  rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {}
+}
+
+message GetBalanceRequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  uint32 user_id = 3;
+  string exchange = 4;
+  optional string asset = 5;
+}
+
+message GetBalanceResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  message Result {
+     string asset = 1;
+     string balance = 2;
+  }
+  repeated Result assets = 3;
+}
