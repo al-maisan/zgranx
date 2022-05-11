@@ -15,5 +15,5 @@ build: proto
 
 
 proto:
-	$(shell find internal/ | grep '\.pb.go$' | xargs rm -f)
+	$(shell find internal/ | grep pb.go$ | xargs rm -f)
 	protoc --go_out=. --go-grpc_out=. api/monitor.proto
