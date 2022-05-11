@@ -38,7 +38,9 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 	log.Printf("exa GetBalance request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
 	asset := in.GetAsset()
 	if asset != "" {
-		log.Printf("exa GetBalance request: asset: %v", asset)
+		log.Printf("exa GetBalance request: exchange: %s -- asset: %v", in.GetExchange(), asset)
+	} else {
+		log.Printf("exa GetBalance request: exchange: %s", in.GetExchange())
 	}
 	uid := in.GetUserId()
 	if uid < 1 {

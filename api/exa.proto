@@ -8,11 +8,19 @@ service EXA {
   rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {}
 }
 
+enum ExchangeType {
+   BINANCE = 0;
+   FTX = 1;
+   KRAKEN = 2;
+   KUCOIN = 3;
+   GATE_IO = 4;
+}
+
 message GetBalanceRequest {
   google.protobuf.Timestamp request_time = 1;
   string request_id = 2;
   uint32 user_id = 3;
-  string exchange = 4;
+  ExchangeType exchange = 4;
   optional string asset = 5;
 }
 
