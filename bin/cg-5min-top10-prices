@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+execution_start=`date -R`
+ds=`date "+%Y-%m-%d"`
+fts=`date -u +"%Y-%m-%dT%H:%M:%S"`
+
+# tlp=${HOME}/Downloads/zgranx
+tlp=/tmp/zgranx
+dpath=${tlp}/${ds}/5min/${fts}
+mkdir -p ${dpath}
+
+uri_template='https://api.coingecko.com/api/v3/simple/price?ids=%s&vs_currencies=%s&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true'
+bases='bitcoin,ethereum,bnb,cardano,solana,polkadot,avalanche,polygon,litecoin'
+quotes='usd,eur,jpy,chf,cad,krw'
+uri=$(printf "${uri_template}" ${bases} ${quotes})
+
+dlfn="${dpath}/prices.json.tmp"
+cidx=1
+while true; do
+   response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --request GET --url "${uri}")
+   if ((response == 200)); then
+      # all good, done.
+      cat ${dlfn} | jq > ${dpath}/prices.json
+      rm -f ${dlfn}
+      break
+   else
+      echo "response: $response"
+      echo "$uri"
+      rm -f ${dlfn}
+      if ((response == 429)); then
+         echo "< too many requests | ${cidx} >"
+         sleep 60
+         ((cidx++))
+         continue
+      else
+         sleep 1
+         break
+      fi
+   fi
+done
+
+execution_end=`date -R`
+date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'
