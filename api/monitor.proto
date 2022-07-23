@@ -1,4 +1,5 @@
 syntax = "proto3";
+package monitor;
 import "google/protobuf/timestamp.proto";
 
 option go_package = "internal/proto/monitor";
