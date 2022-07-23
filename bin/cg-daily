@@ -1,0 +1,39 @@
+#!/bin/bash
+set -e
+execution_start=`date -R`
+ds=`date "+%Y-%m-%d"`
+
+# tlp=${HOME}/Downloads/zgranx
+tlp=/tmp/zgranx
+dpath=${tlp}/${ds}/ohlc
+mkdir -p ${dpath}
+
+uri_template='https://api.coingecko.com/api/v3/coins/%s/ohlc?vs_currency=usd&days=1'
+for asset in bitcoin ethereum bnb cardano solana polkadot avalanche polygon litecoin; do
+   uri=$(printf "${uri_template}" ${asset})
+   dlfn="${dpath}/${asset}.ohlc"
+   cidx=1
+   while true; do
+      response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --request GET --url "${uri}")
+      if ((response == 200)); then
+         # all good, done.
+         break
+      else
+         echo "response: $response"
+         echo "$uri"
+         rm -f ${dlfn}
+         if ((response == 429)); then
+            echo "< too many requests | ${cidx} >"
+            sleep 60
+            ((cidx++))
+            continue
+         else
+            sleep 2
+            break
+         fi
+      fi
+   done
+done
+
+execution_end=`date -R`
+date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'
