@@ -8,30 +8,36 @@ tlp=/tmp/zgranx
 dpath=${tlp}/${ds}/ohlc
 mkdir -p ${dpath}
 
-uri_template='https://api.coingecko.com/api/v3/coins/%s/ohlc?vs_currency=usd&days=1'
-for asset in bitcoin ethereum bnb cardano solana polkadot avalanche polygon litecoin; do
-   uri=$(printf "${uri_template}" ${asset})
-   dlfn="${dpath}/${asset}.ohlc"
-   cidx=1
-   while true; do
-      response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --request GET --url "${uri}")
-      if ((response == 200)); then
-         # all good, done.
-         break
-      else
-         echo "response: $response"
-         echo "$uri"
-         rm -f ${dlfn}
-         if ((response == 429)); then
-            echo "< too many requests | ${cidx} >"
-            sleep 60
-            ((cidx++))
-            continue
-         else
-            sleep 1
+uri_template='https://api.coingecko.com/api/v3/coins/%s/ohlc?vs_currency=%s&days=1'
+for base in bitcoin ethereum bnb cardano solana polkadot avalanche polygon litecoin; do
+   for quote in usd eur jpy chf cad krw; do
+      uri=$(printf "${uri_template}" ${base} ${quote})
+      dlfn="${dpath}/${base}_${quote}.ohlc"
+      cidx=1
+      while true; do
+         response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --request GET --url "${uri}")
+         if ((response == 200)); then
+            # all good, done.
             break
+         else
+            echo "response: $response"
+            echo "$uri"
+            rm -f ${dlfn}
+            if ((response == 404)); then
+               echo "< ${base}_${quote} not found >"
+               break 2
+            fi
+            if ((response == 429)); then
+               echo "< too many requests | ${cidx} >"
+               sleep 60
+               ((cidx++))
+               continue
+            else
+               sleep 1
+               break
+            fi
          fi
-      fi
+      done
    done
 done
 

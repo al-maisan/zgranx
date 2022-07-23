@@ -8,6 +8,8 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 sdbdir=/tmp/zgranx/sdb
 sdbinitdir="$(ROOT_DIR)/deployments/sdb"
+pdbdir=/tmp/zgranx/pdb
+pdbinitdir="$(ROOT_DIR)/deployments/pdb"
 
 
 all: build
@@ -35,12 +37,12 @@ dockerinit:
 sdbinit: sdbhalt
 	-docker container prune -f >/dev/null 2>&1
 	-sudo rm -rf $(sdbdir)
-	-docker run --detach -v $(sdbdir):/var/lib/mysql:z  -v $(sdbinitdir):/docker-entrypoint-initdb.d:z --network zgranxnet --name szgranxdb --env MARIADB_USER=$(ZGRANX_SDB_USER) --env MARIADB_PASSWORD=$(ZGRANX_SDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(ZGRANX_SDB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(ZGRANX_SDB_DATABASE) mariadb:latest
+	-docker run -p 3306:3306 --detach -v $(sdbdir):/var/lib/mysql:z  -v $(sdbinitdir):/docker-entrypoint-initdb.d:z --network zgranxnet --name szgranxdb --env MARIADB_USER=$(ZGRANX_SDB_USER) --env MARIADB_PASSWORD=$(ZGRANX_SDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(ZGRANX_SDB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(ZGRANX_SDB_DATABASE) mariadb:latest
 
 
 sdbstart:
 	-docker container prune -f >/dev/null 2>&1
-	-docker run --detach -v $(sdbdir):/var/lib/mysql  --network zgranxnet --name szgranxdb --env MARIADB_USER=$(ZGRANX_SDB_USER) --env MARIADB_PASSWORD=$(ZGRANX_SDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(ZGRANX_SDB_ROOT_PASSWORD) mariadb:latest
+	-docker run -p 3306:3306 --detach -v $(sdbdir):/var/lib/mysql  --network zgranxnet --name szgranxdb --env MARIADB_USER=$(ZGRANX_SDB_USER) --env MARIADB_PASSWORD=$(ZGRANX_SDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(ZGRANX_SDB_ROOT_PASSWORD) mariadb:latest
 
 
 sdbhalt:
@@ -50,3 +52,23 @@ sdbhalt:
 sdbprompt:
 	-docker container prune -f >/dev/null 2>&1
 	-docker run --network zgranxnet -it --rm mariadb mysql -h szgranxdb -u $(ZGRANX_SDB_USER) -D $(ZGRANX_SDB_DATABASE) -p$(ZGRANX_SDB_PASSWORD)
+
+
+pdbinit: pdbhalt
+	-docker container prune -f >/dev/null 2>&1
+	-sudo rm -rf $(pdbdir)
+	-docker run -p 3307:3306 --detach -v $(pdbdir):/var/lib/mysql:z  -v $(pdbinitdir):/docker-entrypoint-initdb.d:z --network zgranxnet --name pzgranxdb --env MARIADB_USER=$(ZGRANX_PDB_USER) --env MARIADB_PASSWORD=$(ZGRANX_PDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(ZGRANX_PDB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(ZGRANX_PDB_DATABASE) mariadb:latest
+
+
+pdbstart:
+	-docker container prune -f >/dev/null 2>&1
+	-docker run -p 3307:3306 --detach -v $(pdbdir):/var/lib/mysql  --network zgranxnet --name pzgranxdb --env MARIADB_USER=$(ZGRANX_PDB_USER) --env MARIADB_PASSWORD=$(ZGRANX_PDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(ZGRANX_PDB_ROOT_PASSWORD) mariadb:latest
+
+
+pdbhalt:
+	-docker stop pzgranxdb
+	-docker container prune -f >/dev/null 2>&1
+
+pdbprompt:
+	-docker container prune -f >/dev/null 2>&1
+	-docker run --network zgranxnet -it --rm mariadb mysql -h pzgranxdb -u $(ZGRANX_PDB_USER) -D $(ZGRANX_PDB_DATABASE) -p$(ZGRANX_PDB_PASSWORD)
