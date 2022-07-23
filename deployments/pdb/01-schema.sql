@@ -59,7 +59,7 @@ CREATE TABLE price (
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
-     unique(base, quote, period, data_source_id)
+     unique(ts, base, quote, period, data_source_id)
  );
 
 DROP TABLE IF EXISTS ohlc;
@@ -80,5 +80,5 @@ CREATE TABLE ohlc (
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
-     unique(base, quote, period, data_source_id)
+     unique(ts, base, quote, period, data_source_id)
  );
