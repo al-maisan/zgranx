@@ -1,1 +1,0 @@
-/home/user/projects/trading_bot/zgranx/rsi_service/target/debug/librsi_service.rlib: /home/user/projects/trading_bot/zgranx/rsi_service/build.rs /home/user/projects/trading_bot/zgranx/rsi_service/src/lib.rs
