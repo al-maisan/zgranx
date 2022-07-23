@@ -38,7 +38,7 @@ func main() {
 	log.Printf("version: %s\n", r1.GetVersion())
 
 	cexa := exa.NewEXAClient(conn)
-	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", Exchange: exa.ExchangeType_FTX})
+	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", Exchange: exa.ExchangeType_KRAKEN, ApiKey: "key", ApiSecret: "secret"})
 	if err != nil {
 		log.Printf("failed to get balance 1: %v\n", err)
 	} else {
