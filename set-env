@@ -1,0 +1,9 @@
+export ZGRANX_SDB_USER=szgranx
+export ZGRANX_SDB_PASSWORD=spassword
+export ZGRANX_SDB_ROOT_PASSWORD=rspassword
+export ZGRANX_SDB_DATABASE=szgranx
+
+export ZGRANX_PDB_USER=pzgranx
+export ZGRANX_PDB_PASSWORD=ppassword
+export ZGRANX_PDB_ROOT_PASSWORD=rppassword
+export ZGRANX_PDB_DATABASE=pzgranx
