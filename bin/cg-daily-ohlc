@@ -28,7 +28,7 @@ for asset in bitcoin ethereum bnb cardano solana polkadot avalanche polygon lite
             ((cidx++))
             continue
          else
-            sleep 2
+            sleep 1
             break
          fi
       fi
