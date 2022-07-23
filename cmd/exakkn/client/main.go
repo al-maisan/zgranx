@@ -15,6 +15,7 @@ import (
 
 var (
 	addr = flag.String("addr", "localhost:50051", "address to connect to")
+	tef  = flag.Bool("tef", false, "test EXA functions [false]")
 )
 
 func main() {
@@ -25,7 +26,14 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	cmon := monitor.NewMonitorClient(conn)
+	testMonitor(conn)
+	if tef != nil && *tef == true {
+		testEXA(conn)
+	}
+}
+
+func testMonitor(c *grpc.ClientConn) {
+	cmon := monitor.NewMonitorClient(c)
 
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -36,8 +44,14 @@ func main() {
 	}
 	log.Printf("response time: %v\n", r1.GetResponseTime().AsTime())
 	log.Printf("version: %s\n", r1.GetVersion())
+}
 
-	cexa := exa.NewEXAClient(conn)
+func testEXA(c *grpc.ClientConn) {
+	cexa := exa.NewEXAClient(c)
+
+	// Contact the server and print out its response.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", Exchange: exa.ExchangeType_KRAKEN, ApiKey: "key", ApiSecret: "secret"})
 	if err != nil {
 		log.Printf("failed to get balance 1: %v\n", err)
