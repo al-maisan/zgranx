@@ -79,7 +79,7 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 func main() {
 	flag.Parse()
 	version = fmt.Sprintf("%s::%s", bts, rev)
-	fmt.Printf("exaftx: %s\n", version)
+	fmt.Printf("exakkn: %s\n", version)
 	if *exchange == "" {
 		log.Fatalf("exchange parameter not specified")
 	}

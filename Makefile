@@ -14,11 +14,11 @@ all: build
 
 
 build: proto
-	rm -f $(BIN_DIR)/exaftx*
-	go build -o $(BIN_DIR)/exaftx_server -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exaftx/server/main.go
-	go build -o $(BIN_DIR)/exaftx_client -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exaftx/client/main.go
+	rm -f $(BIN_DIR)/exakkn*
+	go build -o $(BIN_DIR)/exakkn_server -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exakkn/server/main.go
+	go build -o $(BIN_DIR)/exakkn_client -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exakkn/client/main.go
 
 
 proto:
