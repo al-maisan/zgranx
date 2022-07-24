@@ -8,8 +8,8 @@ import (
 	"net"
 	"strings"
 
-	exa "github.com/al-maisan/zgranx/internal/proto/exa"
-	monitor "github.com/al-maisan/zgranx/internal/proto/monitor"
+	exa "github.com/alphabot-fi/T-801/internal/proto/exa"
+	monitor "github.com/alphabot-fi/T-801/internal/proto/monitor"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
