@@ -1,4 +1,4 @@
-# zgranx - smart crypto trading
+# T-801 - smart crypto trading
 
 ## high-level design
 
