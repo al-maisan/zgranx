@@ -1,9 +1,9 @@
-export T_801_SDB_USER=szgranx
+export T_801_SDB_USER=sT-801
 export T_801_SDB_PASSWORD=spassword
 export T_801_SDB_ROOT_PASSWORD=rspassword
-export T_801_SDB_DATABASE=szgranx
+export T_801_SDB_DATABASE=sT-801
 
-export T_801_PDB_USER=pzgranx
+export T_801_PDB_USER=pT-801
 export T_801_PDB_PASSWORD=ppassword
 export T_801_PDB_ROOT_PASSWORD=rppassword
-export T_801_PDB_DATABASE=pzgranx
+export T_801_PDB_DATABASE=pT-801
