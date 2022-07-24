@@ -1,4 +1,4 @@
-module github.com/al-maisan/zgranx
+module github.com/alphabot-fi/T-801
 
 go 1.18
 
