@@ -1,3 +1,4 @@
 rsi_service/src/protos/
 rsi_service/target/
 .env
+internal/proto/
