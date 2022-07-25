@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alphabot-fi/T-801/internal/ohlc"
+	"github.com/alphabot-fi/T-801/internal/cg/ohlc"
+	"github.com/alphabot-fi/T-801/internal/cg/prices"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -68,6 +69,43 @@ func main() {
 						return err
 					}
 					err = ohlc.Persist(db, dsource, period, data)
+					if err != nil {
+						return err
+					}
+					return nil
+				},
+			},
+			{
+				Name:    "process-price-data",
+				Aliases: []string{"ppd"},
+				Usage:   "process a collection of prices.json files",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "dsource",
+						Usage:       "data source (e.g. \"coingecko\")",
+						Required:    true,
+						Destination: &dsource,
+					},
+					&cli.StringFlag{
+						Name:        "period",
+						Usage:       "data collection period (e.g. \"5M\")",
+						Required:    true,
+						Destination: &period,
+					},
+					&cli.StringFlag{
+						Name:        "fpath",
+						Usage:       "root directory that contains the ohlc files",
+						Required:    true,
+						Destination: &fpath,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					log.Info("fpath = ", fpath)
+					data, err := prices.Process(fpath)
+					if err != nil {
+						return err
+					}
+					err = prices.Persist(db, dsource, period, data)
 					if err != nil {
 						return err
 					}
