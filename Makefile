@@ -21,6 +21,9 @@ build: proto
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exakkn/server/main.go
 	go build -o $(BIN_DIR)/exakkn_client -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exakkn/client/main.go
+	rm -f $(BIN_DIR)/dit
+	go build -o $(BIN_DIR)/dit -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/dit/main.go
 
 
 proto:
