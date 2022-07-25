@@ -52,6 +52,8 @@ CREATE TABLE price (
      quote MEDIUMINT NOT NULL,
      data_source_id MEDIUMINT NOT NULL,
      price DECIMAL(20,8) NOT NULL,
+     q_volume DECIMAL(20,8) NOT NULL,
+     q_volume_change DECIMAL(20,8) NOT NULL,
      -- one of: '1M', '3M', '5M', '15M', '30M', '1H', '2H', '3H', '4H', '1d',
      --         '1w', '1m'
      period VARCHAR(8) NOT NULL DEFAULT '5M',
