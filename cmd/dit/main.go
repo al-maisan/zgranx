@@ -32,7 +32,7 @@ func main() {
 	}
 	defer db.Close()
 
-	var dsource, fpath string
+	var dsource, fpath, period string
 	app := &cli.App{
 		Name:  "dit",
 		Usage: "data import tool",
@@ -49,6 +49,12 @@ func main() {
 						Destination: &dsource,
 					},
 					&cli.StringFlag{
+						Name:        "period",
+						Usage:       "data collection period (e.g. \"30M\")",
+						Required:    true,
+						Destination: &period,
+					},
+					&cli.StringFlag{
 						Name:        "fpath",
 						Usage:       "root directory that contains the ohlc files",
 						Required:    true,
@@ -61,7 +67,7 @@ func main() {
 					if err != nil {
 						return err
 					}
-					err = ohlc.Persist(db, dsource, data)
+					err = ohlc.Persist(db, dsource, period, data)
 					if err != nil {
 						return err
 					}
@@ -83,25 +89,25 @@ func getDSN() string {
 		present                            bool
 	)
 
-	host, present = os.LookupEnv("NFTMAVEN_DB_HOST")
+	host, present = os.LookupEnv("T_801_PDB_HOST")
 	if !present {
-		log.Fatal("NFTMAVEN_DB_HOST variable not set")
+		log.Fatal("T_801_PDB_HOST variable not set")
 	}
-	port, present = os.LookupEnv("NFTMAVEN_DB_PORT")
+	port, present = os.LookupEnv("T_801_PDB_PORT")
 	if !present {
-		log.Fatal("NFTMAVEN_DB_PORT variable not set")
+		log.Fatal("T_801_PDB_PORT variable not set")
 	}
-	user, present = os.LookupEnv("NFTMAVEN_DB_USER")
+	user, present = os.LookupEnv("T_801_PDB_USER")
 	if !present {
-		log.Fatal("NFTMAVEN_DB_USER variable not set")
+		log.Fatal("T_801_PDB_USER variable not set")
 	}
-	passwd, present = os.LookupEnv("NFTMAVEN_DB_PASSWORD")
+	passwd, present = os.LookupEnv("T_801_PDB_PASSWORD")
 	if !present {
-		log.Fatal("NFTMAVEN_DB_PASSWORD variable not set")
+		log.Fatal("T_801_PDB_PASSWORD variable not set")
 	}
-	database, present = os.LookupEnv("NFTMAVEN_DB_DATABASE")
+	database, present = os.LookupEnv("T_801_PDB_DATABASE")
 	if !present {
-		log.Fatal("NFTMAVEN_DB_DATABASE variable not set")
+		log.Fatal("T_801_PDB_DATABASE variable not set")
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true&time_zone=UTC", user, passwd, host, port, database)
 	return dsn

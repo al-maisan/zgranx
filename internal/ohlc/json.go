@@ -21,11 +21,11 @@ type Data struct {
 }
 
 type OHLC struct {
-	TS uint
-	O  decimal.Decimal
-	H  decimal.Decimal
-	L  decimal.Decimal
-	C  decimal.Decimal
+	TS uint            `db:"ts"`
+	O  decimal.Decimal `db:"open"`
+	H  decimal.Decimal `db:"high"`
+	L  decimal.Decimal `db:"low"`
+	C  decimal.Decimal `db:"close"`
 }
 
 func Process(fpath string) ([]Data, error) {
@@ -36,6 +36,7 @@ func Process(fpath string) ([]Data, error) {
 		return nil, err
 	}
 
+	log.Info(" #files = ", len(files))
 	for _, file := range files {
 		od, err := parse(file)
 		if err != nil {
@@ -78,7 +79,8 @@ func parse(fpath string) ([]OHLC, error) {
 	}
 	for _, d := range data {
 		r := OHLC{
-			TS: uint(d[0].IntPart()),
+			// we want seconds
+			TS: uint(d[0].IntPart()) / 1e3,
 			O:  d[1],
 			H:  d[2],
 			L:  d[3],
