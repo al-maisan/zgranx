@@ -57,7 +57,7 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					log.Info("fpath = ", fpath)
-					data, err := ohlc.Process(dsource, fpath)
+					data, err := ohlc.Process(fpath)
 					if err != nil {
 						return err
 					}
