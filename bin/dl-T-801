@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+   root=/tmp/snapshot/T-801
+else
+   root="$1"
+fi
+
+ds=`date "+%Y-%m-%d"`
+fn=${ds}-T-801.tgz
+
+# fetch the data from the server
+ssh gala "(cd /root/Downloads/T-801 && tar czf /tmp/${fn} .)" && scp gala:/tmp/${fn} /home/user/Downloads/
+
+#unpack it on the local system
+rm -rf ${root}
+mkdir -p ${root}
+(cd ${root} && tar xf /home/user/Downloads/${fn})
