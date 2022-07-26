@@ -6,9 +6,9 @@ timestamp := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-sdbdir=/tmp/T-801/sdb
+sdbdir=/tmp/mariadb/T-801/sdb
 sdbinitdir="$(ROOT_DIR)/deployments/sdb"
-pdbdir=/tmp/T-801/pdb
+pdbdir=/tmp/mariadb/T-801/pdb
 pdbinitdir="$(ROOT_DIR)/deployments/pdb"
 
 
@@ -24,6 +24,9 @@ build: proto
 	rm -f $(BIN_DIR)/dit
 	go build -o $(BIN_DIR)/dit -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/dit/main.go
+	rm -f $(BIN_DIR)/huobi
+	go build -o $(BIN_DIR)/huobi -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/huobi/main.go
 
 
 proto:

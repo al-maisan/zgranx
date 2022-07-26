@@ -9,6 +9,9 @@ CREATE TABLE asset (
      unique(name),
      unique(symbol)
  );
+
+-- please note: we use the coingecko symbol for the asset/coin in the `name`
+-- column
 INSERT INTO asset(name, symbol, decimals) VALUES('bitcoin', 'btc', 8);
 INSERT INTO asset(name, symbol, decimals) VALUES('ethereum', 'eth', 18);
 INSERT INTO asset(name, symbol, decimals) VALUES('bnb', 'bnb', 8);
@@ -43,6 +46,9 @@ INSERT INTO data_source(name, uri) VALUES('coingecko', 'https://www.coingecko.co
 INSERT INTO data_source(name, uri) VALUES('bitstamp', 'https://www.bitstamp.net/');
 INSERT INTO data_source(name, uri) VALUES('binance', 'https://www.binance.com/en');
 INSERT INTO data_source(name, uri) VALUES('bitfinex', 'https://www.bitfinex.com/');
+INSERT INTO data_source(name, uri) VALUES('ftx', 'https://www.ftx.com/');
+INSERT INTO data_source(name, uri) VALUES('gate_io', 'https://www.gate.io/');
+INSERT INTO data_source(name, uri) VALUES('huobi', 'https://www.huobi.com/');
 
 
 DROP TABLE IF EXISTS price;
@@ -79,8 +85,8 @@ CREATE TABLE ohlc (
      -- one of: '1M', '3M', '5M', '15M', '30M', '1H', '2H', '3H', '4H', '1d',
      --         '1w', '1m'
      period VARCHAR(8) NOT NULL DEFAULT '5M',
-     trades INT UNSIGNED NOT NULL DEFAULT 0,
-     vol DECIMAL(30,8) NOT NULL DEFAULT 0.0,
+     trades INT UNSIGNED,
+     vol DECIMAL(30,8),
      PRIMARY KEY (id),
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
