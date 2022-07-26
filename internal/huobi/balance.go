@@ -3,7 +3,7 @@ package huobi
 import "github.com/shopspring/decimal"
 
 type Balance struct {
-	Asset   uint
+	Asset   string
 	Balance decimal.Decimal
 }
 
