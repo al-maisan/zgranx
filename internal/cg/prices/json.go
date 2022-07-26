@@ -2,7 +2,6 @@ package prices
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
@@ -60,7 +59,6 @@ func parse(fpath string) ([]Multi, error) {
 		log.Error("failed to parse ", fpath)
 		return nil, err
 	}
-	fmt.Printf("> %v\n", data)
 	for base, qd := range data {
 		m := Multi{
 			Base: base,
@@ -95,7 +93,6 @@ func find(fpath string) ([]string, error) {
 		if !info.Mode().IsRegular() {
 			return nil
 		}
-		fmt.Println(info.Name())
 		if info.Name() != "prices.json" {
 			return nil
 		}

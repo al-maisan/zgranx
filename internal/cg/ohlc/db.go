@@ -19,7 +19,6 @@ func Persist(db *sqlx.DB, dsource, period string, data []Data) error {
 		WHERE ba.name = '%s' AND qa.name = '%s' AND ds.name = '%s'
 		`
 		mq := fmt.Sprintf(q, period, d.Base, d.Quote, dsource)
-		log.Info("  *data = ", len(d.Data))
 		for _, od := range d.Data {
 			_, err := db.NamedExec(mq, od)
 			if err != nil {
