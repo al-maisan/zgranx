@@ -7,13 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	day     = "2022-07-17"
-	chain   = "ethereum"
-	slug    = "regulars"
-	dsource = "opensea"
-)
-
 func TestFindFiles(t *testing.T) {
 	expected := []string{
 		"test_data/ohlc/a/23/bitcoin_usd.ohlc",
