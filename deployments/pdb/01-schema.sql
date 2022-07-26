@@ -79,6 +79,8 @@ CREATE TABLE ohlc (
      -- one of: '1M', '3M', '5M', '15M', '30M', '1H', '2H', '3H', '4H', '1d',
      --         '1w', '1m'
      period VARCHAR(8) NOT NULL DEFAULT '5M',
+     trades INT UNSIGNED NOT NULL DEFAULT 0,
+     vol DECIMAL(30,8) NOT NULL DEFAULT 0.0,
      PRIMARY KEY (id),
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
