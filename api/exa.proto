@@ -86,14 +86,16 @@ message GetBalanceRequest {
   optional Asset asset = 6;
 }
 
+message Balance {
+  Asset asset = 1;
+  string balance = 2;
+}
+
 message GetBalanceResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
-  message Result {
-     Asset asset = 1;
-     string balance = 2;
-  }
-  repeated Result balances = 3;
+  repeated Balance balances = 3;
+  repeated string errors = 4;
 }
 
 message GetOpenOrdersRequest {
@@ -108,18 +110,19 @@ message GetOpenOrdersRequest {
   optional uint32 limit = 9;
 }
 
+message Order {
+  uint32 id = 1;
+  string client_order_id = 2;
+  Pair pair = 3;
+  string price = 4;
+  uint32 created_at = 5;
+  OrderType order_type = 6;
+  string filled_amount = 7;
+  OrderState order_state = 8;
+}
 message GetOpenOrdersResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
-  message Order {
-     uint32 id = 1;
-     string client_order_id = 2;
-     Pair pair = 3;
-     string price = 4;
-     uint32 created_at = 5;
-     OrderType order_type = 6;
-     string filled_amount = 7;
-     OrderState order_state = 8;
-  }
   repeated Order orders = 3;
+  repeated string errors = 4;
 }

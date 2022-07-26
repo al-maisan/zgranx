@@ -71,11 +71,17 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 		RequestId:    in.GetRequestId(),
 	}
 	for _, b := range bs {
-		brr := exa.GetBalanceResponse_Result{
-			Asset:   exa.Asset(exa.Asset_value[b.Asset]),
-			Balance: b.Balance.String(),
+		a, ok := exa.Asset_value[b.Asset]
+		if !ok {
+			err := fmt.Sprintf("unkown asset: '%s'", b.Asset)
+			resp.Errors = append(resp.Errors, err)
+		} else {
+			brr := exa.Balance{
+				Asset:   exa.Asset(a),
+				Balance: b.Balance.String(),
+			}
+			resp.Balances = append(resp.Balances, &brr)
 		}
-		resp.Balances = append(resp.Balances, &brr)
 	}
 	return &resp, nil
 }
