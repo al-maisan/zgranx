@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+option go_package = "internal/proto/base";
+
+package base;
+
+message DebugData {
+  google.protobuf.Timestamp ts = 1; // timestamp
+  string uuid = 2; // uuidv4
+}
+
