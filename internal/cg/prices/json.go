@@ -14,7 +14,7 @@ var log = logrus.New()
 
 type Multi struct {
 	Base string `db:"base"`
-	TS   uint   `db:"last_updated_at"`
+	TS   uint   `db:"ts"`
 	Data []Single
 }
 

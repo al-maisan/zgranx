@@ -94,7 +94,7 @@ func main() {
 					},
 					&cli.StringFlag{
 						Name:        "fpath",
-						Usage:       "root directory that contains the ohlc files",
+						Usage:       "root directory that contains the prices.json files",
 						Required:    true,
 						Destination: &fpath,
 					},
