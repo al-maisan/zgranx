@@ -49,7 +49,7 @@ func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.Pi
 func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*exa.GetBalanceResponse, error) {
 	log.Printf("exa GetBalance request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
 	asset := in.GetAsset()
-	if asset != exa.Asset_UNKNOWN_ASSET {
+	if asset != exa.Asset_UNKNOWN {
 		log.Printf("exa GetBalance request: exchange: %s -- asset: %v", in.GetExchange(), asset)
 	} else {
 		log.Printf("exa GetBalance request: exchange: %s", in.GetExchange())

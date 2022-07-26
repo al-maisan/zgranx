@@ -10,36 +10,33 @@ service EXA {
 }
 
 enum ExchangeType {
-   UNKNOWN_EXCHANGE = 0;
-   BINANCE = 1;
-   FTX = 2;
-   KRAKEN = 3;
-   KUCOIN = 4;
-   GATE_IO = 5;
-   HUOBI = 6;
+   BINANCE = 0;
+   FTX = 1;
+   KRAKEN = 2;
+   KUCOIN = 3;
+   GATE_IO = 4;
+   HUOBI = 5;
 }
 
 enum Side {
-   UNKNOWN_SIDE = 0;
-   BUY = 1;
-   SELL = 2;
+   BUY = 0;
+   SELL = 1;
 }
 
 enum Pair {
-   UNKNOWN_PAIR = 0;
-   BTC_USDT = 1;
-   ETH_USDT = 2;
-   ADA_USDT = 3;
-   BNB_USDT = 4;
-   SOL_USDT = 5;
-   DOT_USDT = 6;
-   AVAX_USDT = 7;
-   MATIC_USDT = 8;
-   LTC_USDT = 9;
+   BTC_USDT = 0;
+   ETH_USDT = 1;
+   ADA_USDT = 2;
+   BNB_USDT = 3;
+   SOL_USDT = 4;
+   DOT_USDT = 5;
+   AVAX_USDT = 6;
+   MATIC_USDT = 7;
+   LTC_USDT = 8;
 }
 
 enum Asset {
-   UNKNOWN_ASSET = 0;
+   UNKNOWN = 0;
    BTC = 1;
    ETH = 2;
    BNB = 3;
@@ -60,21 +57,19 @@ enum Asset {
 }
 
 enum OrderType {
-   UNKNOWN_ORDER_TYPE = 0;
-   MARKET = 1;
-   LIMIT = 2;
-   LIMIT_FOK = 3;
+   MARKET = 0;
+   LIMIT = 1;
+   LIMIT_FOK = 2;
 }
 
 enum OrderState {
-   UNKNOWN_ORDER_STATE = 0;
-   CREATED = 1;
-   SUBMITTED = 2;
-   PARTIAL_FILLED = 3;
-   FILLED = 4;
-   PARTIAL_CANCELED = 5;
-   CANCELING = 6;
-   CANCELED = 7;
+   CREATED = 0;
+   SUBMITTED = 1;
+   PARTIAL_FILLED = 2;
+   FILLED = 3;
+   PARTIAL_CANCELED = 4;
+   CANCELING = 5;
+   CANCELED = 6;
 }
 
 message GetBalanceRequest {
