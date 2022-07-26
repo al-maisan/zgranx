@@ -1,0 +1,44 @@
+#!/bin/bash
+set -e
+execution_start=`date -R`
+ds=`date "+%Y-%m-%d"`
+
+# tlp=${HOME}/Downloads/T-801/huobi
+tlp=/tmp/td/T-801/huobi
+dpath=${tlp}/${ds}/ohlc
+mkdir -p ${dpath}
+
+uri_template='https://api.huobi.pro/market/history/kline?period=5min&size=300&symbol=%s'
+for sym in btcusdt ethusdt adausdt bnbusdt solusdt dotusdt avaxusdt maticusdt ltcusdt; do
+   uri=$(printf "${uri_template}" ${sym})
+   dlfn="${dpath}/${sym}.ohlc"
+   cidx=1
+   echo " >> ${sym}"
+   while true; do
+      response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --request GET --url "${uri}")
+      if ((response == 200)); then
+         # all good, done.
+         break
+      else
+         echo "response: $response"
+         echo "$uri"
+         rm -f ${dlfn}
+         if ((response == 404)); then
+            echo "< ${sym} not found >"
+            break 2
+         fi
+         if ((response == 429)); then
+            echo "< too many requests | ${cidx} >"
+            sleep 60
+            ((cidx++))
+            continue
+         else
+            sleep 1
+            break
+         fi
+      fi
+   done
+done
+
+execution_end=`date -R`
+date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'
