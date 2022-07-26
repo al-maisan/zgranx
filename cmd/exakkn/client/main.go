@@ -59,7 +59,7 @@ func testEXA(c *grpc.ClientConn) {
 		log.Printf("balance 1: response time: %v\n", r2.GetResponseTime().AsTime())
 	}
 
-	asset := "MVN"
+	asset := exa.Asset_BTC
 	r3, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "2", ApiKey: "key", ApiSecret: "secret", Asset: &asset, Exchange: exa.ExchangeType_KUCOIN})
 	if err != nil {
 		log.Printf("failed to get balance 2: %v\n", err)
@@ -67,7 +67,7 @@ func testEXA(c *grpc.ClientConn) {
 		log.Printf("balance 2: response time: %v\n", r3.GetResponseTime().AsTime())
 	}
 
-	asset = "BTC"
+	asset = exa.Asset_ETH
 	r4, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "3", ApiKey: "key", ApiSecret: "secret", Asset: &asset, Exchange: exa.ExchangeType_FTX})
 	if err != nil {
 		log.Printf("failed to get balance 3: %v\n", err)

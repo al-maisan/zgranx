@@ -24,6 +24,9 @@ build: proto
 	rm -f $(BIN_DIR)/dit
 	go build -o $(BIN_DIR)/dit -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/dit/main.go
+	rm -f $(BIN_DIR)/huobi
+	go build -o $(BIN_DIR)/huobi -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/huobi/main.go
 
 
 proto:

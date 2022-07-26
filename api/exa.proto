@@ -6,7 +6,7 @@ option go_package = "internal/proto/exa";
 
 service EXA {
   rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {}
-  rpc GetOpenOrders (GetBalanceRequest) returns (GetBalanceResponse) {}
+  rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
 }
 
 enum ExchangeType {
@@ -23,7 +23,7 @@ enum Side {
    SELL = 1;
 }
 
-enum Symbol {
+enum Pair {
    BTC_USDT = 0;
    ETH_USDT = 1;
    ADA_USDT = 2;
@@ -33,6 +33,27 @@ enum Symbol {
    AVAX_USDT = 6;
    MATIC_USDT = 7;
    LTC_USDT = 8;
+}
+
+enum Asset {
+   UNKNOWN = 0;
+   BTC = 1;
+   ETH = 2;
+   BNB = 3;
+   ADA = 4;
+   SOL = 5;
+   DOT = 6;
+   AVAX = 7;
+   MATIC = 8;
+   LTC = 9;
+   USDT = 10;
+   USD = 11;
+   EUR = 12;
+   JPY = 13;
+   CHF = 14;
+   CAD = 15;
+   KRW = 16;
+   USDC = 17;
 }
 
 enum OrderType {
@@ -57,17 +78,17 @@ message GetBalanceRequest {
   string api_key = 3;
   string api_secret = 4;
   ExchangeType exchange = 5;
-  optional string asset = 6;
+  optional Asset asset = 6;
 }
 
 message GetBalanceResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
   message Result {
-     string asset = 1;
+     Asset asset = 1;
      string balance = 2;
   }
-  repeated Result assets = 3;
+  repeated Result balances = 3;
 }
 
 message GetOpenOrdersRequest {
@@ -77,7 +98,7 @@ message GetOpenOrdersRequest {
   string api_secret = 4;
   ExchangeType exchange = 5;
   optional string account_id = 6;
-  optional Symbol symbol = 7;
+  optional Pair pair = 7;
   optional Side side = 8;
   optional uint32 limit = 9;
 }
@@ -88,7 +109,7 @@ message GetOpenOrdersResponse {
   message Order {
      uint32 id = 1;
      string client_order_id = 2;
-     Symbol symbol = 3;
+     Pair pair = 3;
      string price = 4;
      uint32 created_at = 5;
      OrderType order_type = 6;
