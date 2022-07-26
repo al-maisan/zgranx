@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+execution_start=`date -R`
+ds=`date "+%Y-%m-%d"`
+
+# tlp=${HOME}/Downloads/T-801/ftx
+tlp=/tmp/td/T-801/ftx
+dpath=${tlp}/${ds}/ohlc
+mkdir -p ${dpath}
+
+st=`date +"%s"`
+((st = st - 88000))
+
+uri_template='https://ftx.com/api/markets/%s/candles?resolution=300&start_time=%s'
+for sym in BTC/USD ETH/USD BNB/USD SOL/USD DOT/USD AVAX/USD MATIC/USD LTC/USD; do
+   uri=$(printf "${uri_template}" ${sym} ${st})
+   fbn=$(echo ${sym} | sed -e 's,/,-,')
+   dlfn="${dpath}/${fbn}.ohlc"
+   cidx=1
+   echo " >> ${sym}"
+   while true; do
+      response=$(curl -L -s -o ${dlfn} -w "%{http_code}"  --request GET --url "${uri}")
+      if ((response == 200)); then
+         # all good, done.
+         break
+      else
+         echo "response: $response"
+         echo "$uri"
+         rm -f ${dlfn}
+         if ((response == 404)); then
+            echo "< ${sym} not found >"
+            break 2
+         fi
+         if ((response == 429)); then
+            echo "< too many requests | ${cidx} >"
+            sleep 60
+            ((cidx++))
+            continue
+         else
+            sleep 1
+            break
+         fi
+      fi
+   done
+done
+
+execution_end=`date -R`
+date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'
