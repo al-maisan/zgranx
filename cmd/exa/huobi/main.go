@@ -83,7 +83,7 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 func main() {
 	flag.Parse()
 	version = fmt.Sprintf("%s::%s", bts, rev)
-	fmt.Printf("exakkn: %s\n", version)
+	fmt.Printf("huobi: %s\n", version)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
