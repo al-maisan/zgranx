@@ -3,8 +3,8 @@ set -e
 execution_start=`date -R`
 ds=`date "+%Y-%m-%d"`
 
-# tlp=${HOME}/Downloads/T-801
-tlp=/tmp/T-801
+# tlp=${HOME}/Downloads/T-801/cg
+tlp=/tmp/td/T-801/cg
 dpath=${tlp}/${ds}/ohlc
 mkdir -p ${dpath}
 

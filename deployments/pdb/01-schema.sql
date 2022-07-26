@@ -25,6 +25,7 @@ INSERT INTO asset(asset_type, name, symbol, decimals) VALUES('fiat', 'jpy', 'jpy
 INSERT INTO asset(asset_type, name, symbol, decimals) VALUES('fiat', 'chf', 'chf', 2);
 INSERT INTO asset(asset_type, name, symbol, decimals) VALUES('fiat', 'cad', 'cad', 2);
 INSERT INTO asset(asset_type, name, symbol, decimals) VALUES('fiat', 'krw', 'krw', 0);
+INSERT INTO asset(name, symbol, decimals) VALUES('usd-coin', 'usdc', 6);
 
 
 DROP TABLE IF EXISTS data_source;

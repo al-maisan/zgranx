@@ -4,8 +4,8 @@ execution_start=`date -R`
 ds=`date "+%Y-%m-%d"`
 fts=`date -u +"%Y-%m-%dT%H:%M:%S"`
 
-# tlp=${HOME}/Downloads/T-801
-tlp=/tmp/T-801
+# tlp=${HOME}/Downloads/T-801/cg
+tlp=/tmp/td/T-801/cg
 dpath=${tlp}/${ds}/5min/${fts}
 mkdir -p ${dpath}
 
