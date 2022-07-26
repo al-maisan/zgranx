@@ -23,7 +23,7 @@ impl Monitor for MyMonitor {
         let cn = ct.as_nanos();
 
         if cs > i64::MAX as u64 {
-            panic!("time to big");
+            panic!("timevalue exceeds int64");
         }
 
         let ct = ::prost_types::Timestamp {
