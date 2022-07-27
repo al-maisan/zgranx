@@ -37,13 +37,13 @@ func GetBalances(apiKey, apiSecret string) ([]BalanceData, error) {
 
 	for _, a := range as {
 		log.Info("getting balances for account ", a.ID)
-		ap := fmt.Sprintf("/v1/account/accounts/%s/balance", a.ID)
+		ap := fmt.Sprintf("/v1/account/accounts/%d/balance", a.ID)
 		body, err := doReq(apiKey, apiSecret, http.MethodGet, domain, ap)
 		if err != nil {
 			log.Errorf("failed to get balances for account %d, %v", a.ID, err)
 			return nil, err
 		}
-		bd, err := parseBalance(body)
+		bd, err := parseBalances(body)
 		if err != nil {
 			log.Error(err)
 			return nil, err
@@ -54,7 +54,7 @@ func GetBalances(apiKey, apiSecret string) ([]BalanceData, error) {
 	return bdr, nil
 }
 
-func parseBalance(body []byte) (*BalanceData, error) {
+func parseBalances(body []byte) (*BalanceData, error) {
 	type br struct {
 		Status string      `json:"status"`
 		Data   BalanceData `json:"data"`
