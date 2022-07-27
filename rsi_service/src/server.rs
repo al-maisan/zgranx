@@ -1,20 +1,15 @@
 use tonic::{transport::Server, Request, Response, Status};
 
-use monitor_service::monitor_server::{Monitor, MonitorServer};
-use monitor_service::{PingRequest, PingResponse};
+mod protos;
+use protos::monitor::{PingRequest,PingResponse,monitor_server};
 
 use std::time::SystemTime;
-
-
-pub mod monitor_service {
-    tonic::include_proto!("monitor"); // The string specified here must match the proto package name
-}
 
 #[derive(Debug, Default)]
 pub struct MyMonitor {}
 
 #[tonic::async_trait]
-impl Monitor for MyMonitor {
+impl monitor_server::Monitor for MyMonitor {
     async fn ping(&self, request: Request<PingRequest>) -> Result<Response<PingResponse>, Status> {
         println!("Got a request: {:?}", request);
 
@@ -31,7 +26,7 @@ impl Monitor for MyMonitor {
             nanos: cn as i32
         };
 
-        let reply = monitor_service::PingResponse {
+        let reply = PingResponse {
             response_time: Some(ct),
             version: String::from("0.0.1")
         };
@@ -46,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let monitor = MyMonitor::default();
 
     Server::builder()
-        .add_service(MonitorServer::new(monitor))
+        .add_service(monitor_server::MonitorServer::new(monitor))
         .serve(addr)
         .await?;
 
