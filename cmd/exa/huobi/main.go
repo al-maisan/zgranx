@@ -69,7 +69,7 @@ func (s *server) GetBalances(ctx context.Context, in *exa.GetBalancesRequest) (*
 	for _, bd := range bdata {
 		account := fmt.Sprintf("%d", bd.Account)
 		for _, b := range bd.Balances {
-			a, ok := exa.Asset_value[b.Asset]
+			a, ok := exa.Asset_value[strings.ToUpper(b.Asset)]
 			if !ok {
 				err := fmt.Sprintf("unkown asset: '%s'", b.Asset)
 				log.Error(err)

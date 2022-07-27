@@ -26,7 +26,7 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string) ([]byte, error) {
 		log.Error(err)
 		return nil, err
 	}
-	params, err := signReq(apiKey, apiSecret, req.Method, domain, u.Path)
+	params, err := signReq(apiKey, apiSecret, req.Method, u.Host, u.Path)
 	req.URL.RawQuery = (*params).Encode()
 	c := &http.Client{
 		Transport: &http.Transport{
@@ -66,7 +66,7 @@ func sign(secret, params string) (string, error) {
 }
 
 func signReq(apiKey, secretKey, method, domain, path string) (*url.Values, error) {
-	var params url.Values
+	params := url.Values{}
 	params.Set("AccessKeyId", apiKey)
 	params.Set("SignatureMethod", "HmacSHA256")
 	params.Set("SignatureVersion", "2")
