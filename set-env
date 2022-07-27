@@ -7,6 +7,3 @@ export T_801_PDB_USER=pT-801
 export T_801_PDB_PASSWORD=ppassword
 export T_801_PDB_ROOT_PASSWORD=rppassword
 export T_801_PDB_DATABASE=pT-801
-
-export HUOBI_RO_ACCESS_KEY=HRAK-123
-export HUOBI_RO_SECRET_KEY=zecred-HRAK-123

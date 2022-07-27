@@ -16,14 +16,12 @@ all: build
 
 
 build: proto
-	rm -f $(BIN_DIR)/exakkn*
-	go build -o $(BIN_DIR)/exakkn_server -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exakkn/server/main.go
-	go build -o $(BIN_DIR)/exakkn_client -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exakkn/client/main.go
 	rm -f $(BIN_DIR)/dit
 	go build -o $(BIN_DIR)/dit -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/dit/main.go
+	rm -f $(BIN_DIR)/etc
+	go build -o $(BIN_DIR)/etc -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/etc/main.go
 	rm -f $(BIN_DIR)/huobi
 	go build -o $(BIN_DIR)/huobi -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/huobi/main.go
