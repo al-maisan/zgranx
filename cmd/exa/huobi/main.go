@@ -38,12 +38,7 @@ func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.Pi
 
 func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*exa.GetBalanceResponse, error) {
 	log.Printf("exa GetBalance request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
-	asset := in.GetAsset()
-	if asset != exa.Asset_UNKNOWN {
-		log.Printf("exa GetBalance request: exchange: %s -- asset: %v", in.GetExchange(), asset)
-	} else {
-		log.Printf("exa GetBalance request: exchange: %s", in.GetExchange())
-	}
+	log.Printf("exa GetBalance request: exchange: %s", in.GetExchange().String())
 	re := in.GetExchange().String()
 	if strings.ToLower(re) != "huobi" {
 		err := status.Errorf(codes.InvalidArgument, "wrong exchange: '%s'", re)
@@ -60,7 +55,7 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 		return nil, err
 	}
 
-	bs, err := huobi.GetBalance(apiKey, apiSecret, asset.String())
+	bs, err := huobi.GetBalance(apiKey, apiSecret)
 	if err != nil {
 		err := status.Error(codes.Internal, err.Error())
 		return nil, err

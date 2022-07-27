@@ -7,6 +7,6 @@ type Balance struct {
 	Balance decimal.Decimal
 }
 
-func GetBalance(apiKey, apiSecret, asset string) ([]Balance, error) {
+func GetBalance(apiKey, apiSecret string) ([]Balance, error) {
 	return nil, nil
 }

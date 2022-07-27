@@ -78,12 +78,12 @@ message GetBalanceRequest {
   string api_key = 3;
   string api_secret = 4;
   ExchangeType exchange = 5;
-  optional Asset asset = 6;
 }
 
 message Balance {
   Asset asset = 1;
   string balance = 2;
+  optional string account = 3;
 }
 
 message GetBalanceResponse {
