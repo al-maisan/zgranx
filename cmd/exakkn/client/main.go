@@ -52,23 +52,21 @@ func testEXA(c *grpc.ClientConn) {
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r2, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "1", Exchange: exa.ExchangeType_KRAKEN, ApiKey: "key", ApiSecret: "secret"})
+	r2, err := cexa.GetBalances(ctx, &exa.GetBalancesRequest{RequestTime: timestamppb.Now(), RequestId: "1", Exchange: exa.ExchangeType_KRAKEN, ApiKey: "key", ApiSecret: "secret"})
 	if err != nil {
 		log.Printf("failed to get balance 1: %v\n", err)
 	} else {
 		log.Printf("balance 1: response time: %v\n", r2.GetResponseTime().AsTime())
 	}
 
-	asset := exa.Asset_BTC
-	r3, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "2", ApiKey: "key", ApiSecret: "secret", Asset: &asset, Exchange: exa.ExchangeType_KUCOIN})
+	r3, err := cexa.GetBalances(ctx, &exa.GetBalancesRequest{RequestTime: timestamppb.Now(), RequestId: "2", ApiKey: "key", ApiSecret: "secret", Exchange: exa.ExchangeType_KUCOIN})
 	if err != nil {
 		log.Printf("failed to get balance 2: %v\n", err)
 	} else {
 		log.Printf("balance 2: response time: %v\n", r3.GetResponseTime().AsTime())
 	}
 
-	asset = exa.Asset_ETH
-	r4, err := cexa.GetBalance(ctx, &exa.GetBalanceRequest{RequestTime: timestamppb.Now(), RequestId: "3", ApiKey: "key", ApiSecret: "secret", Asset: &asset, Exchange: exa.ExchangeType_FTX})
+	r4, err := cexa.GetBalances(ctx, &exa.GetBalancesRequest{RequestTime: timestamppb.Now(), RequestId: "3", ApiKey: "key", ApiSecret: "secret", Exchange: exa.ExchangeType_FTX})
 	if err != nil {
 		log.Printf("failed to get balance 3: %v\n", err)
 	} else {

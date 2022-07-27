@@ -4,13 +4,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 
 	"github.com/alphabot-fi/T-801/internal/huobi"
 	exa "github.com/alphabot-fi/T-801/internal/proto/exa"
 	monitor "github.com/alphabot-fi/T-801/internal/proto/monitor"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,6 +18,7 @@ import (
 )
 
 var (
+	log               = logrus.New()
 	port              = flag.Int("port", 50051, "server port")
 	bts, rev, version string
 )
@@ -36,14 +37,9 @@ func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.Pi
 	return &resp, nil
 }
 
-func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*exa.GetBalanceResponse, error) {
-	log.Printf("exa GetBalance request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
-	asset := in.GetAsset()
-	if asset != exa.Asset_UNKNOWN_ASSET {
-		log.Printf("exa GetBalance request: exchange: %s -- asset: %v", in.GetExchange(), asset)
-	} else {
-		log.Printf("exa GetBalance request: exchange: %s", in.GetExchange())
-	}
+func (s *server) GetBalances(ctx context.Context, in *exa.GetBalancesRequest) (*exa.GetBalancesResponse, error) {
+	log.Printf("exa GetBalances request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
+	log.Printf("exa GetBalances request: exchange: %s", in.GetExchange().String())
 	re := in.GetExchange().String()
 	if strings.ToLower(re) != "huobi" {
 		err := status.Errorf(codes.InvalidArgument, "wrong exchange: '%s'", re)
@@ -60,22 +56,33 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 		return nil, err
 	}
 
-	bs, err := huobi.GetBalance(apiKey, apiSecret, asset.String())
+	bdata, err := huobi.GetBalances(apiKey, apiSecret)
 	if err != nil {
 		err := status.Error(codes.Internal, err.Error())
 		return nil, err
 	}
 
-	resp := exa.GetBalanceResponse{
+	resp := exa.GetBalancesResponse{
 		ResponseTime: timestamppb.Now(),
 		RequestId:    in.GetRequestId(),
 	}
-	for _, b := range bs {
-		brr := exa.GetBalanceResponse_Result{
-			Asset:   exa.Asset(exa.Asset_value[b.Asset]),
-			Balance: b.Balance.String(),
+	for _, bd := range bdata {
+		account := fmt.Sprintf("%d", bd.Account)
+		for _, b := range bd.Balances {
+			a, ok := exa.Asset_value[b.Asset]
+			if !ok {
+				err := fmt.Sprintf("unkown asset: '%s'", b.Asset)
+				log.Error(err)
+				resp.Errors = append(resp.Errors, err)
+			} else {
+				brr := exa.Balance{
+					Asset:   exa.Asset(a),
+					Balance: b.Balance.String(),
+					Account: &account,
+				}
+				resp.Balances = append(resp.Balances, &brr)
+			}
 		}
-		resp.Balances = append(resp.Balances, &brr)
 	}
 	return &resp, nil
 }
@@ -83,7 +90,7 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 func main() {
 	flag.Parse()
 	version = fmt.Sprintf("%s::%s", bts, rev)
-	fmt.Printf("exakkn: %s\n", version)
+	fmt.Printf("huobi: %s\n", version)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
