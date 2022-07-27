@@ -5,7 +5,7 @@ option go_package = "internal/proto/exa";
 
 
 service EXA {
-  rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {}
+  rpc GetBalances (GetBalancesRequest) returns (GetBalancesResponse) {}
   rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
 }
 
@@ -72,7 +72,7 @@ enum OrderState {
    CANCELED = 6;
 }
 
-message GetBalanceRequest {
+message GetBalancesRequest {
   google.protobuf.Timestamp request_time = 1;
   string request_id = 2;
   string api_key = 3;
@@ -86,7 +86,7 @@ message Balance {
   optional string account = 3;
 }
 
-message GetBalanceResponse {
+message GetBalancesResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
   repeated Balance balances = 3;

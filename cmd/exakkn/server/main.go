@@ -46,9 +46,9 @@ func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.Pi
 	return &resp, nil
 }
 
-func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*exa.GetBalanceResponse, error) {
-	log.Printf("exa GetBalance request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
-	log.Printf("exa GetBalance request: exchange: %s", in.GetExchange().String())
+func (s *server) GetBalances(ctx context.Context, in *exa.GetBalancesRequest) (*exa.GetBalancesResponse, error) {
+	log.Printf("exa GetBalances request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
+	log.Printf("exa GetBalances request: exchange: %s", in.GetExchange().String())
 	re := in.GetExchange().String()
 	if strings.ToLower(re) != strings.ToLower(*exchange) {
 		st := status.New(codes.InvalidArgument, fmt.Sprintf("wrong exchange: '%s'", re))
@@ -64,7 +64,7 @@ func (s *server) GetBalance(ctx context.Context, in *exa.GetBalanceRequest) (*ex
 		st := status.New(codes.InvalidArgument, "no API secret")
 		return nil, st.Err()
 	}
-	resp := exa.GetBalanceResponse{
+	resp := exa.GetBalancesResponse{
 		ResponseTime: timestamppb.Now(),
 		RequestId:    in.GetRequestId(),
 	}
