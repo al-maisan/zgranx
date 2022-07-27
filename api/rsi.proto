@@ -6,7 +6,7 @@ package rsi;
 option go_package = "internal/proto/monitor";
 
 service rsi {
-  rpc get_rsi (PeriodLength) returns (Rsi);
+  rpc get_rsi (PeriodLength) returns (RsiData);
 }
 
 message PeriodLength {
@@ -14,7 +14,7 @@ message PeriodLength {
   base.DebugData debug = 2;
 }
 
-message Rsi {
-  int32 rsi = 1;
+message RsiData {
+  int32 rsival = 1;
   base.DebugData debug = 2;
 }
