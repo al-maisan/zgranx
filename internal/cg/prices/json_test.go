@@ -84,5 +84,5 @@ func TestParseFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, actual)
 	assert.Equal(t, 3, len(actual))
-	assert.Equal(t, expected, actual)
+	assert.True(t, assert.ObjectsAreEqualValues(expected, actual))
 }

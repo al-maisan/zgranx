@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
+	"sort"
 
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
@@ -99,5 +100,6 @@ func find(fpath string) ([]string, error) {
 		files = append(files, path)
 		return nil
 	})
+	sort.Strings(files)
 	return files, err
 }
