@@ -38,7 +38,7 @@ func GetBalances(apiKey, apiSecret string) ([]BalanceData, error) {
 	for _, a := range as {
 		log.Info("getting balances for account ", a.ID)
 		ap := fmt.Sprintf("/v1/account/accounts/%d/balance", a.ID)
-		body, err := doReq(apiKey, apiSecret, http.MethodGet, domain, ap)
+		body, err := doReq(apiKey, apiSecret, http.MethodGet, domain, ap, nil)
 		if err != nil {
 			log.Errorf("failed to get balances for account %d, %v", a.ID, err)
 			return nil, err

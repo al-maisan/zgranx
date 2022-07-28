@@ -14,7 +14,7 @@ type Account struct {
 }
 
 func getAccounts(apiKey, apiSecret string) ([]Account, error) {
-	body, err := doReq(apiKey, apiSecret, http.MethodGet, domain, "/v1/account/accounts")
+	body, err := doReq(apiKey, apiSecret, http.MethodGet, domain, "/v1/account/accounts", nil)
 
 	if err != nil {
 		log.Error("failed to get accounts, ", err)

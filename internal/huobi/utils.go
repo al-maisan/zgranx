@@ -10,10 +10,11 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 	"time"
 )
 
-func doReq(apiKey, apiSecret, method, domain, reqPath string) ([]byte, error) {
+func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte, error) {
 	u, err := url.Parse(domain)
 	if err != nil {
 		log.Error(err)
@@ -21,7 +22,7 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string) ([]byte, error) {
 	}
 
 	u.Path = path.Join(u.Path, reqPath)
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequest(method, u.String(), strings.NewReader(string(in)))
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -39,13 +40,24 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string) ([]byte, error) {
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
+	req.Header.Add("Content-Type", "application/json")
+
 	res, err := c.Do(req)
 
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Error(err)
+		log.Error(string(body))
 		return nil, err
 	}
-	body, err := ioutil.ReadAll(res.Body)
+
+	if res.StatusCode != http.StatusOK {
+		if err != nil {
+			err = fmt.Errorf("request failed with %d, '%s', also: %w", res.StatusCode, res.Status, err)
+		} else {
+			err = fmt.Errorf("request failed with %d, '%s'", res.StatusCode, res.Status)
+		}
+	}
 	if err != nil {
 		log.Error(err)
 		log.Error(string(body))
