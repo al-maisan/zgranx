@@ -30,6 +30,65 @@ const otd = `
 }
 `
 
+const cotd = `
+{
+  "status": "ok",
+  "data": {
+    "success": [
+      "594180370826862"
+    ],
+    "failed": [
+      {
+        "err-msg": "not.found (NT)",
+        "order-id": "123",
+        "err-code": "not-found",
+        "client-order-id": null
+      },
+      {
+        "err-msg": "Parameter 'order-id' is invalid.",
+        "order-id": "abc",
+        "err-code": "invalid-order-id",
+        "client-order-id": null
+      },
+      {
+        "err-msg": "not.found (NT)",
+        "order-id": "456",
+        "err-code": "not-found",
+        "client-order-id": null
+      }
+    ]
+  }
+}
+`
+
+func TestParseCancelOrders(t *testing.T) {
+	expected := CancelData{
+		Succeeded: []string{"594180370826862"},
+		Failed: []CancelFail{
+			{
+				ErrorMessage:  "not.found (NT)",
+				OrderId:       "123",
+				ClientOrderId: "",
+			},
+			{
+				ErrorMessage:  "Parameter 'order-id' is invalid.",
+				OrderId:       "abc",
+				ClientOrderId: "",
+			},
+			{
+				ErrorMessage:  "not.found (NT)",
+				OrderId:       "456",
+				ClientOrderId: "",
+			},
+		},
+	}
+
+	actual, err := parseCancelOrders([]byte(cotd))
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, expected, *actual)
+}
+
 func TestParseOpenOrders(t *testing.T) {
 	expected := []Order{
 		{
