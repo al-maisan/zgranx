@@ -9,79 +9,16 @@ service EXA {
   rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
 }
 
-enum ExchangeType {
-   BINANCE = 0;
-   FTX = 1;
-   KRAKEN = 2;
-   KUCOIN = 3;
-   GATE_IO = 4;
-   HUOBI = 5;
-}
-
-enum Side {
-   BUY = 0;
-   SELL = 1;
-}
-
-enum Pair {
-   BTC_USDT = 0;
-   ETH_USDT = 1;
-   ADA_USDT = 2;
-   BNB_USDT = 3;
-   SOL_USDT = 4;
-   DOT_USDT = 5;
-   AVAX_USDT = 6;
-   MATIC_USDT = 7;
-   LTC_USDT = 8;
-}
-
-enum Asset {
-   UNKNOWN = 0;
-   BTC = 1;
-   ETH = 2;
-   BNB = 3;
-   ADA = 4;
-   SOL = 5;
-   DOT = 6;
-   AVAX = 7;
-   MATIC = 8;
-   LTC = 9;
-   USDT = 10;
-   USD = 11;
-   EUR = 12;
-   JPY = 13;
-   CHF = 14;
-   CAD = 15;
-   KRW = 16;
-   USDC = 17;
-}
-
-enum OrderType {
-   MARKET = 0;
-   LIMIT = 1;
-   LIMIT_FOK = 2;
-}
-
-enum OrderState {
-   CREATED = 0;
-   SUBMITTED = 1;
-   PARTIAL_FILLED = 2;
-   FILLED = 3;
-   PARTIAL_CANCELED = 4;
-   CANCELING = 5;
-   CANCELED = 6;
-}
-
 message GetBalancesRequest {
   google.protobuf.Timestamp request_time = 1;
   string request_id = 2;
   string api_key = 3;
   string api_secret = 4;
-  ExchangeType exchange = 5;
+  string exchange = 5;
 }
 
 message Balance {
-  Asset asset = 1;
+  string asset = 1;
   string balance = 2;
   optional string account = 3;
 }
@@ -98,23 +35,28 @@ message GetOpenOrdersRequest {
   string request_id = 2;
   string api_key = 3;
   string api_secret = 4;
-  ExchangeType exchange = 5;
+  string exchange = 5;
   optional string account_id = 6;
-  optional Pair pair = 7;
-  optional Side side = 8;
+  optional string symbol = 7;
+  optional string side = 8;
   optional uint32 limit = 9;
 }
 
 message Order {
-  uint32 id = 1;
-  string client_order_id = 2;
-  Pair pair = 3;
-  string price = 4;
-  uint32 created_at = 5;
-  OrderType order_type = 6;
-  string filled_amount = 7;
-  OrderState order_state = 8;
+   string symbol = 1;
+   string source = 2;
+   string price = 3;
+   google.protobuf.Timestamp created_at = 4;
+   string amount = 5;
+   string account_id = 6;
+   string client_order_id = 7;
+   string filled_amount = 8;
+   string filled_fees = 9;
+   string id = 10;
+   string state = 11;
+   string type = 12;
 }
+
 message GetOpenOrdersResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
