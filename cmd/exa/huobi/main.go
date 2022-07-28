@@ -37,10 +37,34 @@ func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.Pi
 	return &resp, nil
 }
 
+func assetOfInterest(symbol string) bool {
+	aoi := map[string]bool{
+		"btc":   true,
+		"eth":   true,
+		"bnb":   true,
+		"ada":   true,
+		"sol":   true,
+		"dot":   true,
+		"avax":  true,
+		"matic": true,
+		"ltc":   true,
+		"usdt":  true,
+		"usd":   true,
+		"eur":   true,
+		"jpy":   true,
+		"chf":   true,
+		"cad":   true,
+		"krw":   true,
+		"usdc":  true,
+	}
+	_, ok := aoi[symbol]
+	return ok
+}
+
 func (s *server) GetBalances(ctx context.Context, in *exa.GetBalancesRequest) (*exa.GetBalancesResponse, error) {
 	log.Printf("exa GetBalances request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
-	log.Printf("exa GetBalances request: exchange: %s", in.GetExchange().String())
-	re := in.GetExchange().String()
+	log.Printf("exa GetBalances request: exchange: %s", in.GetExchange())
+	re := in.GetExchange()
 	if strings.ToLower(re) != "huobi" {
 		err := status.Errorf(codes.InvalidArgument, "wrong exchange: '%s'", re)
 		return nil, err
@@ -72,14 +96,12 @@ func (s *server) GetBalances(ctx context.Context, in *exa.GetBalancesRequest) (*
 			if b.Type != "trade" {
 				continue
 			}
-			a, ok := exa.Asset_value[strings.ToUpper(b.Asset)]
-			if !ok {
-				err := fmt.Sprintf("unkown asset: '%s'", b.Asset)
-				log.Error(err)
-				resp.Errors = append(resp.Errors, err)
+			if !assetOfInterest(b.Asset) {
+				err := fmt.Sprintf("ignored asset: '%s'", b.Asset)
+				log.Warn(err)
 			} else {
 				brr := exa.Balance{
-					Asset:   exa.Asset(a),
+					Asset:   b.Asset,
 					Balance: b.Balance.String(),
 					Account: &account,
 				}

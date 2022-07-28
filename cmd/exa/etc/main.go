@@ -88,7 +88,7 @@ func getBalances(c *grpc.ClientConn, exchange string) {
 	req := exa.GetBalancesRequest{
 		RequestTime: timestamppb.Now(),
 		RequestId:   fmt.Sprintf("%d", time.Now().UTC().Unix()),
-		Exchange:    exa.ExchangeType_HUOBI,
+		Exchange:    "huobi",
 		ApiKey:      aks[0],
 		ApiSecret:   aks[1],
 	}
@@ -104,7 +104,7 @@ func getBalances(c *grpc.ClientConn, exchange string) {
 			log.Errorf("nil balance for index %d", i)
 			continue
 		}
-		fmt.Printf("[%2d] %10s %6s %20s\n", i, b.GetAccount(), b.GetAsset().String(), b.GetBalance())
+		fmt.Printf("[%2d] %10s %6s %20s\n", i, b.GetAccount(), b.GetAsset(), b.GetBalance())
 	}
 }
 
