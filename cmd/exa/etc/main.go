@@ -193,12 +193,12 @@ func getOrders(c *grpc.ClientConn, exchange string) {
 		return
 	}
 	log.Infof("got orders for %s at %v", exchange, res.ResponseTime.AsTime().UTC())
-	for i, b := range res.Orders {
-		if b == nil {
+	for i, o := range res.Orders {
+		if o == nil {
 			log.Errorf("nil order for index %d", i)
 			continue
 		}
-		fmt.Printf("[%2d] %10s %8s %6\n", i, b.AccountId, b.Symbol, b.Price)
+		fmt.Printf("[%2d] %8s | %8s | %8s @ %8s | %16s | %8s | %10s | %s\n", i, o.Symbol, o.Type, o.Amount, o.Price, o.Id, o.AccountId, o.State, o.CreatedAt.AsTime().UTC())
 	}
 }
 

@@ -5,7 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alphabot-fi/T-801/internal/huobi"
 	exa "github.com/alphabot-fi/T-801/internal/proto/exa"
@@ -128,4 +130,53 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+}
+
+func (s *server) GetOpenOrders(ctx context.Context, in *exa.GetOpenOrdersRequest) (*exa.GetOpenOrdersResponse, error) {
+	log.Printf("exa GetOpenOrders request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
+	log.Printf("exa GetOpenOrders request: exchange: %s", in.GetExchange())
+	re := in.GetExchange()
+	if strings.ToLower(re) != "huobi" {
+		err := status.Errorf(codes.InvalidArgument, "wrong exchange: '%s'", re)
+		return nil, err
+	}
+	apiKey := in.GetApiKey()
+	if apiKey == "" {
+		err := status.Error(codes.InvalidArgument, "no API key")
+		return nil, err
+	}
+	apiSecret := in.GetApiSecret()
+	if apiSecret == "" {
+		err := status.Error(codes.InvalidArgument, "no API secret")
+		return nil, err
+	}
+
+	odata, err := huobi.GetOpenOrders(apiKey, apiSecret)
+	if err != nil {
+		err := status.Error(codes.Internal, err.Error())
+		return nil, err
+	}
+
+	resp := exa.GetOpenOrdersResponse{
+		ResponseTime: timestamppb.Now(),
+		RequestId:    in.GetRequestId(),
+	}
+	for _, o := range odata {
+		oo := exa.Order{
+			Symbol:        o.Symbol,
+			Source:        o.Source,
+			Price:         o.Price.String(),
+			Amount:        o.Amount.String(),
+			AccountId:     strconv.Itoa(int(o.AccountId)),
+			ClientOrderId: o.ClientOrderId,
+			FilledAmount:  o.FilledAmount.String(),
+			FilledFees:    o.FilledFees.String(),
+			Id:            strconv.Itoa(int(o.Id)),
+			State:         o.State,
+			Type:          o.Type,
+		}
+		oo.CreatedAt = timestamppb.New(time.Unix(int64(o.CreatedAt/1e3), 0))
+		resp.Orders = append(resp.Orders, &oo)
+	}
+	return &resp, nil
 }
