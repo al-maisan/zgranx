@@ -7,6 +7,7 @@ option go_package = "internal/proto/exa";
 service EXA {
   rpc GetBalances (GetBalancesRequest) returns (GetBalancesResponse) {}
   rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
+  rpc CancelOrders (CancelOrdersRequest) returns (CancelOrdersResponse) {}
 }
 
 message GetBalancesRequest {
@@ -27,7 +28,6 @@ message GetBalancesResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
   repeated Balance balances = 3;
-  repeated string errors = 4;
 }
 
 message GetOpenOrdersRequest {
@@ -61,5 +61,26 @@ message GetOpenOrdersResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
   repeated Order orders = 3;
-  repeated string errors = 4;
+}
+
+message CancelOrdersRequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  string api_key = 3;
+  string api_secret = 4;
+  string exchange = 5;
+  repeated string order_ids = 6;
+}
+
+message CancelFailure {
+   string order_id = 1;
+   string error_message = 2;
+
+}
+
+message CancelOrdersResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  repeated string succeeded = 3;
+  repeated CancelFailure failed = 4;
 }
