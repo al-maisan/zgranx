@@ -1,3 +1,4 @@
+use uuid::Uuid;
 use tonic::{transport::Server, Request, Response, Status};
 
 mod protos;
@@ -47,7 +48,16 @@ pub struct MyRsi {}
 #[tonic::async_trait]
 impl rsi_server::Rsi for MyRsi {
     async fn get_rsi(&self, request: Request<PeriodLength>) -> Result<Response<RsiData>, Status> {
-        let debug = DebugData { ts: Some(get_prost_ts()), uuid: "bla".to_string() };
+        let uuid = match std::str::from_utf8(Uuid::new_v4().as_bytes()) {
+            Ok(s) => String::from(s),
+            Err(e) => return Err(Status::new(::tonic::Code::Aborted, 
+                format!("generated UUID contains invalid utf8: {}", e))),
+        };
+
+        let debug = DebugData { 
+            ts: Some(get_prost_ts()),
+            uuid: String::from(uuid),
+        };
         Ok(Response::new(RsiData { rsival: 40, debug: Some(debug) }))
     }
 }
