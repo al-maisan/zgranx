@@ -1,6 +1,7 @@
 package huobi
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -10,7 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"strings"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte
 	}
 
 	u.Path = path.Join(u.Path, reqPath)
-	req, err := http.NewRequest(method, u.String(), strings.NewReader(string(in)))
+	req, err := http.NewRequest(method, u.String(), bytes.NewBuffer(in))
 	if err != nil {
 		log.Error(err)
 		return nil, err

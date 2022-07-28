@@ -42,7 +42,6 @@ func GetOpenOrders(apiKey, apiSecret string) ([]Order, error) {
 		log.Errorf("failed to get open orders, %v", err)
 		return nil, err
 	}
-	log.Info(string(body))
 	od, err := parseOpenOrders(body)
 	if err != nil {
 		log.Error(err)
@@ -85,7 +84,6 @@ func CancelOrders(apiKey, apiSecret string, ids []string) (*CancelData, error) {
 		return nil, err
 	}
 	body, err := doReq(apiKey, apiSecret, http.MethodPost, domain, ap, input)
-	log.Info(string(body))
 	if err != nil {
 		log.Errorf("failed to get open orders, %v", err)
 		return nil, err
