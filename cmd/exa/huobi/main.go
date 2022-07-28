@@ -180,3 +180,51 @@ func (s *server) GetOpenOrders(ctx context.Context, in *exa.GetOpenOrdersRequest
 	}
 	return &resp, nil
 }
+
+func (s *server) CancelOrders(ctx context.Context, in *exa.CancelOrdersRequest) (*exa.CancelOrdersResponse, error) {
+	log.Printf("exa CancelOrders request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
+	log.Printf("exa CancelOrders request: exchange: %s", in.GetExchange())
+	re := in.GetExchange()
+	if strings.ToLower(re) != "huobi" {
+		err := status.Errorf(codes.InvalidArgument, "wrong exchange: '%s'", re)
+		return nil, err
+	}
+	apiKey := in.GetApiKey()
+	if apiKey == "" {
+		err := status.Error(codes.InvalidArgument, "no API key")
+		return nil, err
+	}
+	apiSecret := in.GetApiSecret()
+	if apiSecret == "" {
+		err := status.Error(codes.InvalidArgument, "no API secret")
+		return nil, err
+	}
+
+	cd, err := huobi.CancelOrders(apiKey, apiSecret, in.OrderIds)
+	if err != nil {
+		err := status.Error(codes.Internal, err.Error())
+		return nil, err
+	}
+
+	resp := exa.CancelOrdersResponse{
+		ResponseTime: timestamppb.Now(),
+		RequestId:    in.GetRequestId(),
+		Succeeded:    cd.Succeeded,
+	}
+	if len(cd.Failed) > 0 {
+		var cfs []*exa.CancelFailure
+		for _, f := range cd.Failed {
+			oid := f.OrderId
+			if oid == "" && f.ClientOrderId != "" {
+				oid = f.ClientOrderId
+			}
+			ecf := exa.CancelFailure{
+				OrderId:      oid,
+				ErrorMessage: f.ErrorMessage,
+			}
+			cfs = append(cfs, &ecf)
+		}
+		resp.Failed = cfs
+	}
+	return &resp, nil
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -33,6 +34,7 @@ func main() {
 	version = fmt.Sprintf("%s::%s", bts, rev)
 	log.Info("version = ", version)
 
+	var ids cli.StringSlice
 	var exchange, saddr string
 	app := &cli.App{
 		Name:  "etc",
@@ -133,6 +135,45 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "cancel-orders",
+				Aliases: []string{"cos"},
+				Usage:   "cancel the specified orders on the given exchange",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "exchange",
+						Usage:       "exchange to use (e.g. \"huobi\")",
+						Required:    true,
+						Destination: &exchange,
+					},
+					&cli.StringFlag{
+						Name:        "server-address",
+						Usage:       "server address (e.g. \"localhost:50051\")",
+						Required:    false,
+						Destination: &saddr,
+					},
+					&cli.StringSliceFlag{
+						Name:        "ids",
+						Usage:       "1+ order id",
+						Aliases:     []string{"i"},
+						Required:    true,
+						Destination: &ids,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					if saddr == "" {
+						saddr = defaultAddr
+					}
+					log.Info("cancel-orders, saddr = ", saddr)
+					conn, err := grpc.Dial(saddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+					if err != nil {
+						log.Fatalf("did not connect: %v", err)
+					}
+					defer conn.Close()
+					cancelOrders(conn, exchange, ids.Value())
+					return nil
+				},
+			},
 		},
 	}
 
@@ -224,4 +265,41 @@ func ping(c *grpc.ClientConn, exchange string) {
 		return
 	}
 	log.Infof("ping response from %s EXA at %v, version('%s')", exchange, res.ResponseTime.AsTime().UTC(), res.Version)
+}
+
+func cancelOrders(c *grpc.ClientConn, exchange string, ids []string) {
+	aks := apiKeys(exchange, "rw")
+	cexa := exa.NewEXAClient(c)
+
+	// Contact the server and print out its response.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req := exa.CancelOrdersRequest{
+		RequestTime: timestamppb.Now(),
+		RequestId:   fmt.Sprintf("%d", time.Now().UTC().Unix()),
+		Exchange:    "huobi",
+		ApiKey:      aks[0],
+		ApiSecret:   aks[1],
+		OrderIds:    ids,
+	}
+	log.Infof("cancel orders on %s at %v (%s)", exchange, time.Now().UTC(), req.GetRequestId())
+	res, err := cexa.CancelOrders(ctx, &req)
+	if err != nil {
+		log.Errorf("failed to cancel orders on %s, %v", exchange, err)
+		return
+	}
+	log.Infof("canceled orders on %s at %v -- succeeded: %d, failed: %d", exchange, res.ResponseTime.AsTime().UTC(), len(res.Succeeded), len(res.Failed))
+	if len(res.Succeeded) > 0 {
+		sort.Strings(res.Succeeded)
+		fmt.Println(" >> succeeded:")
+		for _, s := range res.Succeeded {
+			fmt.Printf("    - %s\n", s)
+		}
+	}
+	if len(res.Failed) > 0 {
+		fmt.Println(" ** failed:")
+		for _, f := range res.Failed {
+			fmt.Printf("    ! %s, %s\n", f.OrderId, f.ErrorMessage)
+		}
+	}
 }
