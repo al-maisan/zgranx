@@ -1,8 +1,10 @@
 use tonic::{transport::Server, Request, Response, Status};
 
-use rsi_service::protos::monitor::{PingRequest,PingResponse,monitor_server};
-use rsi_service::protos::rsi::{PeriodLength,RsiData,rsi_server};
-use rsi_service::protos::base::{DebugData};
+use rsi_service::protos::{
+    monitor::{PingRequest,PingResponse,monitor_server},
+    rsi::{PeriodLength,RsiData,rsi_server},
+    base::DebugData,
+};
 
 use rsi_service::{gen_debug_data, gen_prost_ts};
 
