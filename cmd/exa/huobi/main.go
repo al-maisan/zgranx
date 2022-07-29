@@ -162,18 +162,39 @@ func (s *server) GetOpenOrders(ctx context.Context, in *exa.GetOpenOrdersRequest
 		RequestId:    in.GetRequestId(),
 	}
 	for _, o := range odata {
+		pair, err := huobi.String2pair(o.Symbol)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		state, err := huobi.String2state(o.State)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		otype, err := huobi.String2type(o.Type)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		side, err := huobi.String2side(o.Type)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		price := o.Price.String()
 		oo := exa.Order{
-			Symbol:        o.Symbol,
-			Source:        o.Source,
-			Price:         o.Price.String(),
+			Pair:          pair,
+			Price:         &price,
 			Amount:        o.Amount.String(),
 			AccountId:     strconv.Itoa(int(o.AccountId)),
 			ClientOrderId: o.ClientOrderId,
 			FilledAmount:  o.FilledAmount.String(),
 			FilledFees:    o.FilledFees.String(),
 			Id:            strconv.Itoa(int(o.Id)),
-			State:         o.State,
-			Type:          o.Type,
+			State:         state,
+			Type:          otype,
+			Side:          side,
 		}
 		oo.CreatedAt = timestamppb.New(time.Unix(int64(o.CreatedAt/1e3), 0))
 		resp.Orders = append(resp.Orders, &oo)
@@ -248,7 +269,7 @@ func (s *server) PlaceOrder(ctx context.Context, in *exa.PlaceOrderRequest) (*ex
 		return nil, err
 	}
 
-	oid, err := huobi.PlaceOrder(apiKey, apiSecret, in.AccountId, in.Symbol, in.Type, in.Amount, in.Price, in.ClientOrderId)
+	oid, err := huobi.PlaceOrder(apiKey, apiSecret, in.AccountId, huobi.Pair2string(in.Pair), huobi.TypeAndSide2string(in.Type, in.Side), in.Amount, in.Price, in.ClientOrderId)
 	if err != nil {
 		err := status.Error(codes.Internal, err.Error())
 		return nil, err

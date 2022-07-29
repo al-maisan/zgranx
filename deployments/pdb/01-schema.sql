@@ -51,6 +51,27 @@ INSERT INTO data_source(name, uri) VALUES('gate_io', 'https://www.gate.io/');
 INSERT INTO data_source(name, uri) VALUES('huobi', 'https://www.huobi.com/');
 
 
+DROP TABLE IF EXISTS pair;
+CREATE TABLE pair (
+     id MEDIUMINT NOT NULL AUTO_INCREMENT,
+     base MEDIUMINT NOT NULL,
+     quote MEDIUMINT NOT NULL,
+     symbol VARCHAR(30) NOT NULL,
+     PRIMARY KEY (id),
+     FOREIGN KEY (base) REFERENCES asset (id),
+     FOREIGN KEY (quote) REFERENCES asset (id),
+     unique(symbol)
+ );
+INSERT INTO pair(base, quote, symbol) VALUES(1,10,'btc-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(2,10,'eth-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(3,10,'bnb-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(4,10,'ada-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(5,10,'sol-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(6,10,'dot-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(7,10,'avax-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(8,10,'matic-usdt');
+INSERT INTO pair(base, quote, symbol) VALUES(9,10,'ltc-usdt');
+
 DROP TABLE IF EXISTS price;
 CREATE TABLE price (
      id MEDIUMINT NOT NULL AUTO_INCREMENT,

@@ -11,7 +11,10 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 	"time"
+
+	"github.com/alphabot-fi/T-801/internal/proto/exa"
 )
 
 func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte, error) {
@@ -28,6 +31,10 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte
 		return nil, err
 	}
 	params, err := signReq(apiKey, apiSecret, req.Method, u.Host, u.Path)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
 	req.URL.RawQuery = (*params).Encode()
 	c := &http.Client{
 		Transport: &http.Transport{
@@ -43,6 +50,10 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := c.Do(req)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -91,4 +102,108 @@ func signReq(apiKey, secretKey, method, domain, path string) (*url.Values, error
 	}
 	params.Set("Signature", signature)
 	return &params, nil
+}
+
+func Pair2string(p *exa.Pair) string {
+	if p != nil {
+		return strings.ToLower(p.Base.String()) + strings.ToLower(p.Quote.String())
+	}
+	return ""
+}
+
+func String2pair(s string) (*exa.Pair, error) {
+	qs := []string{"usdt", "usdc", "usd", "eur", "jpy", "chf", "cad", "krw"}
+	for _, q := range qs {
+		if !strings.HasSuffix(s, q) {
+			continue
+		}
+		ss := strings.Split(s, q)
+		b, q := ss[0], q
+		ba, ok := exa.Asset_value[strings.ToUpper(b)]
+		if !ok {
+			err := fmt.Errorf("unknown base asset: '%s'", b)
+			return nil, err
+		}
+		qa, ok := exa.Asset_value[strings.ToUpper(q)]
+		if !ok {
+			err := fmt.Errorf("unknown quote asset: '%s'", q)
+			return nil, err
+		}
+		return &exa.Pair{Base: exa.Asset(ba), Quote: exa.Asset(qa)}, nil
+	}
+	err := fmt.Errorf("unknown pair: '%s'", s)
+	log.Error(err)
+	return nil, err
+}
+
+func String2state(s string) (exa.OrderState, error) {
+	switch s {
+	case "created":
+		return exa.OrderState(exa.OrderState_CREATED), nil
+	case "submitted":
+		return exa.OrderState(exa.OrderState_SUBMITTED), nil
+	case "partial-filled":
+		return exa.OrderState(exa.OrderState_PARTIAL_FILLED), nil
+	case "filled":
+		return exa.OrderState(exa.OrderState_FILLED), nil
+	case "partial-canceled":
+		return exa.OrderState(exa.OrderState_PARTIAL_CANCELED), nil
+	case "canceling":
+		return exa.OrderState(exa.OrderState_CANCELING), nil
+	case "canceled":
+		return exa.OrderState(exa.OrderState_CANCELED), nil
+	}
+	err := fmt.Errorf("unknown order state: '%s'", s)
+	log.Error(err)
+	return 0, err
+}
+
+func String2type(s string) (exa.OrderType, error) {
+	// buy-market, sell-market, buy-limit, sell-limit, buy-ioc, sell-ioc,
+	// buy-limit-maker, sell-limit-maker, buy-stop-limit, sell-stop-limit,
+	// buy-limit-fok, sell-limit-fok, buy-stop-limit-fok, sell-stop-limit-fok
+	if strings.HasSuffix(s, "-market") {
+		return exa.OrderType_MARKET, nil
+	}
+	if strings.HasSuffix(s, "-limit") {
+		return exa.OrderType_LIMIT, nil
+	}
+	if strings.HasSuffix(s, "-limit-fok") {
+		return exa.OrderType_LIMIT_FOK, nil
+	}
+	if strings.HasSuffix(s, "-ioc") {
+		return exa.OrderType_IOC, nil
+	}
+	err := fmt.Errorf("unknown order type: '%s'", s)
+	log.Error(err)
+	return 0, err
+}
+
+func String2side(s string) (exa.Side, error) {
+	// buy-market, sell-market, buy-limit, sell-limit, buy-ioc, sell-ioc,
+	// buy-limit-maker, sell-limit-maker, buy-stop-limit, sell-stop-limit,
+	// buy-limit-fok, sell-limit-fok, buy-stop-limit-fok, sell-stop-limit-fok
+	if strings.HasPrefix(s, "buy-") {
+		return exa.Side_BUY, nil
+	}
+	if strings.HasPrefix(s, "sell-") {
+		return exa.Side_SELL, nil
+	}
+	err := fmt.Errorf("unknown order side: '%s'", s)
+	log.Error(err)
+	return 0, err
+}
+
+func TypeAndSide2string(t exa.OrderType, s exa.Side) string {
+	switch t {
+	case exa.OrderType_MARKET:
+		return strings.ToLower(s.String()) + "-market"
+	case exa.OrderType_LIMIT:
+		return strings.ToLower(s.String()) + "-limit"
+	case exa.OrderType_LIMIT_FOK:
+		return strings.ToLower(s.String()) + "-limit-fok"
+	case exa.OrderType_IOC:
+		return strings.ToLower(s.String()) + "-ioc"
+	}
+	return ""
 }

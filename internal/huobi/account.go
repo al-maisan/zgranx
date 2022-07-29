@@ -21,10 +21,6 @@ func getAccounts(apiKey, apiSecret string) ([]Account, error) {
 		return nil, err
 	}
 
-	type ar struct {
-		Status string    `json:"status"`
-		Data   []Account `json:"data"`
-	}
 	return parseAccounts(body)
 }
 
