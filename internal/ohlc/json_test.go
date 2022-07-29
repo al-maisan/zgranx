@@ -304,3 +304,16 @@ func TestHuobiParseFileBTC(t *testing.T) {
 	assert.Equal(t, 3, len(actual))
 	assert.Equal(t, expected, actual)
 }
+
+func TestBinanceParseFileBTC(t *testing.T) {
+	expected := []OHLC{
+		{1658973300, decimal.New(2277951000000, -8), decimal.New(2278456000000, -8), decimal.New(2275161000000, -8), decimal.New(2277569000000, -8), 12825, decimal.New(713298478100530, -8)},
+		{1658973600, decimal.New(2277569000000, -8), decimal.New(2278128000000, -8), decimal.New(2274361000000, -8), decimal.New(2275008000000, -8), 11552, decimal.New(599465551853210, -8)},
+		{1659063000, decimal.New(2378158000000, -8), decimal.New(2378159000000, -8), decimal.New(2377836000000, -8), decimal.New(2377873000000, -8), 73, decimal.New(1029222346490, -8)},
+	}
+	actual, err := binanceParse("test_data/binance/BTCUSDT.ohlc")
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, 3, len(actual))
+	assert.Equal(t, expected, actual)
+}

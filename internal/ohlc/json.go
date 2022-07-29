@@ -176,3 +176,32 @@ func find(fpath string) ([]string, error) {
 	sort.Strings(files)
 	return files, err
 }
+
+func binanceParse(fpath string) ([]OHLC, error) {
+	var res []OHLC
+	bs, err := ioutil.ReadFile(fpath)
+	if err != nil {
+		log.Error("failed to read ", fpath)
+		return nil, err
+	}
+	var data [][]decimal.Decimal
+	err = json.Unmarshal(bs, &data)
+	if err != nil {
+		log.Error("failed to parse ", fpath)
+		return nil, err
+	}
+	for _, d := range data {
+		r := OHLC{
+			// we want seconds
+			TS:    uint(d[0].IntPart()) / 1e3,
+			O:     d[1],
+			H:     d[2],
+			L:     d[3],
+			C:     d[4],
+			Count: uint(d[8].IntPart()),
+			QVol:  d[7],
+		}
+		res = append(res, r)
+	}
+	return res, nil
+}
