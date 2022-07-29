@@ -228,3 +228,36 @@ func (s *server) CancelOrders(ctx context.Context, in *exa.CancelOrdersRequest) 
 	}
 	return &resp, nil
 }
+
+func (s *server) PlaceOrder(ctx context.Context, in *exa.PlaceOrderRequest) (*exa.PlaceOrderResponse, error) {
+	log.Printf("exa PlaceOrder request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
+	log.Printf("exa PlaceOrder request: exchange: %s", in.GetExchange())
+	re := in.GetExchange()
+	if strings.ToLower(re) != "huobi" {
+		err := status.Errorf(codes.InvalidArgument, "wrong exchange: '%s'", re)
+		return nil, err
+	}
+	apiKey := in.GetApiKey()
+	if apiKey == "" {
+		err := status.Error(codes.InvalidArgument, "no API key")
+		return nil, err
+	}
+	apiSecret := in.GetApiSecret()
+	if apiSecret == "" {
+		err := status.Error(codes.InvalidArgument, "no API secret")
+		return nil, err
+	}
+
+	oid, err := huobi.PlaceOrder(apiKey, apiSecret, in.AccountId, in.Symbol, in.Type, in.Amount, in.Price, in.ClientOrderId)
+	if err != nil {
+		err := status.Error(codes.Internal, err.Error())
+		return nil, err
+	}
+
+	resp := exa.PlaceOrderResponse{
+		ResponseTime: timestamppb.Now(),
+		RequestId:    in.GetRequestId(),
+		OrderId:      oid,
+	}
+	return &resp, nil
+}
