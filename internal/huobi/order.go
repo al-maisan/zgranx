@@ -85,7 +85,7 @@ func CancelOrders(apiKey, apiSecret string, ids []string) (*CancelData, error) {
 	}
 	body, err := doReq(apiKey, apiSecret, http.MethodPost, domain, ap, input)
 	if err != nil {
-		log.Errorf("failed to get open orders, %v", err)
+		log.Errorf("failed to cancel orders, %v", err)
 		return nil, err
 	}
 	return parseCancelOrders(body)
@@ -109,4 +109,48 @@ func parseCancelOrders(body []byte) (*CancelData, error) {
 	}
 	log.Infof("order cancellation: %d succeeded, %d failed", len(od.Data.Succeeded), len(od.Data.Failed))
 	return &od.Data, nil
+}
+
+func PlaceOrder(apiKey, apiSecret, accountId, symbol, otype, amount, price, clientOrderId string) (string, error) {
+	type pos struct {
+		AccountId     string `json:"account-id"`
+		Symbol        string `json:"symbol"`
+		Type          string `json:"type"`
+		Amount        string `json:"amount"`
+		Price         string `json:"price"`
+		ClientOrderId string `json:"client-order-id"`
+	}
+	log.Info("placing an order on huobi")
+	ap := "/v1/order/orders/place"
+	input, err := json.Marshal(pos{AccountId: accountId, Symbol: symbol, Type: otype, Amount: amount, Price: price, ClientOrderId: clientOrderId})
+	if err != nil {
+		log.Errorf("failed to prepare order placement input data, %v", err)
+		return "", err
+	}
+	body, err := doReq(apiKey, apiSecret, http.MethodPost, domain, ap, input)
+	if err != nil {
+		log.Errorf("failed to place order, %v", err)
+		return "", err
+	}
+	return parsePlaceOrder(body)
+}
+
+func parsePlaceOrder(body []byte) (string, error) {
+	type por struct {
+		Status  string `json:"status"`
+		OrderId string `json:"data"`
+	}
+	od := por{}
+	err := json.Unmarshal(body, &od)
+	if err != nil {
+		log.Error("failed to parse: ", string(body))
+		return "", err
+	}
+	if od.Status != "ok" {
+		err = fmt.Errorf("placing order on huobi failed, '%s'", string(body))
+		log.Error(err)
+		return "", err
+	}
+	log.Infof("order placed, id: %s", od.OrderId)
+	return od.OrderId, nil
 }
