@@ -37,6 +37,11 @@ pub fn gen_debug_data(uuid: Option<String>) -> Result<DebugData, Status> {
         uuid,
     })
 }
+
+pub fn calc_rsi(pd: Vec<u8>) -> u8 {
+    return 1;
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
