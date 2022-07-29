@@ -8,6 +8,7 @@ service EXA {
   rpc GetBalances (GetBalancesRequest) returns (GetBalancesResponse) {}
   rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
   rpc CancelOrders (CancelOrdersRequest) returns (CancelOrdersResponse) {}
+  rpc PlaceOrder (PlaceOrderRequest) returns (PlaceOrderResponse) {}
 }
 
 message GetBalancesRequest {
@@ -83,4 +84,24 @@ message CancelOrdersResponse {
   string request_id = 2;
   repeated string succeeded = 3;
   repeated CancelFailure failed = 4;
+}
+
+message PlaceOrderRequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  string api_key = 3;
+  string api_secret = 4;
+  string exchange = 5;
+  string account_id = 6;
+  string symbol = 7;
+  string type = 8;
+  string amount = 9;
+  string price = 10;
+  string client_order_id = 11;
+}
+
+message PlaceOrderResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  string order_id = 3;
 }

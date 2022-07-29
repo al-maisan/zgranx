@@ -35,7 +35,7 @@ func main() {
 	log.Info("version = ", version)
 
 	var ids cli.StringSlice
-	var exchange, saddr string
+	var exchange, saddr, accountId, symbol, otype, amount, price, clientOrderId string
 	app := &cli.App{
 		Name:  "etc",
 		Usage: "exa test client",
@@ -174,6 +174,78 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "place-order",
+				Aliases: []string{"po"},
+				Usage:   "place an order on the given exchange",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "exchange",
+						Usage:       "exchange to use (e.g. \"huobi\")",
+						Required:    true,
+						Destination: &exchange,
+					},
+					&cli.StringFlag{
+						Name:        "server-address",
+						Usage:       "server address (e.g. \"localhost:50051\")",
+						Required:    false,
+						Destination: &saddr,
+					},
+					&cli.StringFlag{
+						Name:        "account-id",
+						Usage:       "account identifier",
+						Required:    true,
+						Destination: &accountId,
+					},
+					&cli.StringFlag{
+						Name:        "symbol",
+						Usage:       "trading pair (e.g. \"btcusdt\")",
+						Required:    true,
+						Destination: &symbol,
+					},
+					&cli.StringFlag{
+						Name:        "type",
+						Usage:       "order type, either 'buy-limit' or 'sell-limit'",
+						Required:    true,
+						Destination: &otype,
+					},
+					&cli.StringFlag{
+						Name:        "amount",
+						Usage:       "how much of the base asset you wish to buy/sell",
+						Required:    true,
+						Destination: &amount,
+					},
+					&cli.StringFlag{
+						Name:        "price",
+						Usage:       "at what price (quote asset) you wish to buy/sell",
+						Required:    true,
+						Destination: &price,
+					},
+					&cli.StringFlag{
+						Name:        "cid",
+						Usage:       "the id you wish to assign to the new order",
+						Required:    true,
+						Destination: &clientOrderId,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					if saddr == "" {
+						saddr = defaultAddr
+					}
+					log.Info("place-order, saddr = ", saddr)
+					if otype != "buy-limit" && otype != "sell-limit" {
+						err := fmt.Errorf("invalid order type: '%s', must be either 'buy-limit' or 'sell-limit'", otype)
+						return err
+					}
+					conn, err := grpc.Dial(saddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+					if err != nil {
+						log.Fatalf("did not connect: %v", err)
+					}
+					defer conn.Close()
+					placeOrder(conn, exchange, accountId, symbol, otype, amount, price, clientOrderId)
+					return nil
+				},
+			},
 		},
 	}
 
@@ -302,4 +374,34 @@ func cancelOrders(c *grpc.ClientConn, exchange string, ids []string) {
 			fmt.Printf("    ! %s, %s\n", f.OrderId, f.ErrorMessage)
 		}
 	}
+}
+
+func placeOrder(c *grpc.ClientConn, exchange, accountId, symbol, otype, amount, price, clientOrderId string) {
+	aks := apiKeys(exchange, "rw")
+	cexa := exa.NewEXAClient(c)
+
+	// Contact the server and print out its response.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req := exa.PlaceOrderRequest{
+		RequestTime:   timestamppb.Now(),
+		RequestId:     fmt.Sprintf("%d", time.Now().UTC().Unix()),
+		Exchange:      "huobi",
+		ApiKey:        aks[0],
+		ApiSecret:     aks[1],
+		AccountId:     accountId,
+		Symbol:        symbol,
+		Type:          otype,
+		Amount:        amount,
+		Price:         price,
+		ClientOrderId: clientOrderId,
+	}
+	log.Infof("place order on %s at %v (%s)", exchange, time.Now().UTC(), req.GetRequestId())
+	res, err := cexa.PlaceOrder(ctx, &req)
+	if err != nil {
+		log.Errorf("failed to place order on %s, %v", exchange, err)
+		return
+	}
+	log.Infof("placed order on %s at %v", exchange, res.ResponseTime.AsTime().UTC())
+	log.Infof("new order id: %s", res.OrderId)
 }
