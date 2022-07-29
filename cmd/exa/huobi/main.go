@@ -269,7 +269,15 @@ func (s *server) PlaceOrder(ctx context.Context, in *exa.PlaceOrderRequest) (*ex
 		return nil, err
 	}
 
-	oid, err := huobi.PlaceOrder(apiKey, apiSecret, in.AccountId, huobi.Pair2string(in.Pair), huobi.TypeAndSide2string(in.Type, in.Side), in.Amount, in.Price, in.ClientOrderId)
+	if in.Type != exa.OrderType_MARKET && in.Price == nil {
+		err := status.Error(codes.InvalidArgument, "no price for order")
+		return nil, err
+	}
+	if in.Type != exa.OrderType_MARKET && *in.Price == "" {
+		err := status.Error(codes.InvalidArgument, "no price set for order")
+		return nil, err
+	}
+	oid, err := huobi.PlaceOrder(apiKey, apiSecret, in.AccountId, huobi.Pair2string(in.Pair), huobi.TypeAndSide2string(in.Type, in.Side), in.Amount, *in.Price, in.ClientOrderId)
 	if err != nil {
 		err := status.Error(codes.Internal, err.Error())
 		return nil, err

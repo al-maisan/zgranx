@@ -448,8 +448,10 @@ func placeOrder(c *grpc.ClientConn, exchange, accountId, symbol, otype, amount, 
 		Type:          ot,
 		Side:          os,
 		Amount:        amount,
-		Price:         price,
 		ClientOrderId: clientOrderId,
+	}
+	if ot != exa.OrderType_MARKET {
+		req.Price = &price
 	}
 	log.Infof("place order on %s at %v (%s)", exchange, time.Now().UTC(), req.GetRequestId())
 	res, err := cexa.PlaceOrder(ctx, &req)

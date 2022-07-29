@@ -136,7 +136,7 @@ message PlaceOrderRequest {
   Pair pair = 7;
   OrderType type = 8;
   string amount = 9;
-  string price = 10;
+  optional string price = 10;
   string client_order_id = 11;
   Side side = 12;
 }
