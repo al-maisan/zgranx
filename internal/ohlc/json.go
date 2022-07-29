@@ -146,15 +146,7 @@ func huobiParse(fpath string) ([]OHLC, error) {
 	}
 	if tl.Status == "ok" {
 		for _, d := range tl.Data {
-			r := OHLC{
-				TS:    d.TS,
-				O:     d.O,
-				H:     d.H,
-				L:     d.L,
-				C:     d.C,
-				Count: d.Count,
-				QVol:  d.QVol,
-			}
+			r := OHLC(d)
 			res = append(res, r)
 		}
 	} else {

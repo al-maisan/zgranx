@@ -242,8 +242,7 @@ func main() {
 						log.Fatalf("did not connect: %v", err)
 					}
 					defer conn.Close()
-					placeOrder(conn, exchange, accountId, symbol, otype, amount, price, clientOrderId)
-					return nil
+					return placeOrder(conn, exchange, accountId, symbol, otype, amount, price, clientOrderId)
 				},
 			},
 		},
@@ -285,6 +284,13 @@ func getBalances(c *grpc.ClientConn, exchange string) {
 	}
 }
 
+func pair2string(p *exa.Pair) string {
+	if p == nil {
+		return ""
+	}
+	return strings.ToLower(p.Base.String()) + "-" + strings.ToLower(p.Quote.String())
+}
+
 func getOrders(c *grpc.ClientConn, exchange string) {
 	aks := apiKeys(exchange, "ro")
 	cexa := exa.NewEXAClient(c)
@@ -311,7 +317,11 @@ func getOrders(c *grpc.ClientConn, exchange string) {
 			log.Errorf("nil order for index %d", i)
 			continue
 		}
-		fmt.Printf("[%2d] %8s | %8s | %8s @ %8s | %16s | %8s | %10s | %12s | %s\n", i, o.Symbol, o.Type, o.Amount, o.Price, o.Id, o.AccountId, o.State, o.ClientOrderId, o.CreatedAt.AsTime().UTC())
+		var price string
+		if o.Price != nil {
+			price = fmt.Sprintf("@ %8s", *o.Price)
+		}
+		fmt.Printf("[%2d] %12s | %6s |%4s | %8s %11s | %16s | %8s | %10s | %12s | %s\n", i, pair2string(o.Pair), o.Type, o.Side, o.Amount, price, o.Id, o.AccountId, o.State, o.ClientOrderId, o.CreatedAt.AsTime().UTC())
 	}
 }
 
@@ -376,10 +386,50 @@ func cancelOrders(c *grpc.ClientConn, exchange string, ids []string) {
 	}
 }
 
-func placeOrder(c *grpc.ClientConn, exchange, accountId, symbol, otype, amount, price, clientOrderId string) {
+func getPair(sym string) (*exa.Pair, error) {
+	ss := strings.Split(sym, "-")
+	if len(ss) != 2 {
+		err := fmt.Errorf("invalid pair: '%s'", sym)
+		return nil, err
+	}
+	b, q := ss[0], ss[1]
+	ba, ok := exa.Asset_value[strings.ToUpper(b)]
+	if !ok {
+		err := fmt.Errorf("unknown base asset: '%s'", b)
+		return nil, err
+	}
+	qa, ok := exa.Asset_value[strings.ToUpper(q)]
+	if !ok {
+		err := fmt.Errorf("unknown quote asset: '%s'", q)
+		return nil, err
+	}
+	return &exa.Pair{Base: exa.Asset(ba), Quote: exa.Asset(qa)}, nil
+}
+
+func getTypeAndSide(otype string) (exa.OrderType, exa.Side, error) {
+	switch otype {
+	case "sell-limit":
+		return exa.OrderType_LIMIT, exa.Side_SELL, nil
+	case "buy-limit":
+		return exa.OrderType_LIMIT, exa.Side_BUY, nil
+	}
+	return 0, 0, fmt.Errorf("invalid order type: '%s'", otype)
+}
+
+func placeOrder(c *grpc.ClientConn, exchange, accountId, symbol, otype, amount, price, clientOrderId string) error {
 	aks := apiKeys(exchange, "rw")
 	cexa := exa.NewEXAClient(c)
 
+	pair, err := getPair(symbol)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	ot, os, err := getTypeAndSide(otype)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -390,8 +440,9 @@ func placeOrder(c *grpc.ClientConn, exchange, accountId, symbol, otype, amount, 
 		ApiKey:        aks[0],
 		ApiSecret:     aks[1],
 		AccountId:     accountId,
-		Symbol:        symbol,
-		Type:          otype,
+		Pair:          pair,
+		Type:          ot,
+		Side:          os,
 		Amount:        amount,
 		Price:         price,
 		ClientOrderId: clientOrderId,
@@ -400,8 +451,9 @@ func placeOrder(c *grpc.ClientConn, exchange, accountId, symbol, otype, amount, 
 	res, err := cexa.PlaceOrder(ctx, &req)
 	if err != nil {
 		log.Errorf("failed to place order on %s, %v", exchange, err)
-		return
+		return err
 	}
 	log.Infof("placed order on %s at %v", exchange, res.ResponseTime.AsTime().UTC())
 	log.Infof("new order id: %s", res.OrderId)
+	return nil
 }
