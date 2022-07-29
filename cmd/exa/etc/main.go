@@ -218,7 +218,7 @@ func main() {
 					&cli.StringFlag{
 						Name:        "price",
 						Usage:       "at what price (quote asset) you wish to buy/sell",
-						Required:    true,
+						Required:    false,
 						Destination: &price,
 					},
 					&cli.StringFlag{
@@ -233,8 +233,8 @@ func main() {
 						saddr = defaultAddr
 					}
 					log.Info("place-order, saddr = ", saddr)
-					if otype != "buy-limit" && otype != "sell-limit" {
-						err := fmt.Errorf("invalid order type: '%s', must be either 'buy-limit' or 'sell-limit'", otype)
+					if price == "" && !strings.HasSuffix(otype, "-market") {
+						err := fmt.Errorf("price is empty but this is not a market order ('%s')", otype)
 						return err
 					}
 					conn, err := grpc.Dial(saddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -412,6 +412,10 @@ func getTypeAndSide(otype string) (exa.OrderType, exa.Side, error) {
 		return exa.OrderType_LIMIT, exa.Side_SELL, nil
 	case "buy-limit":
 		return exa.OrderType_LIMIT, exa.Side_BUY, nil
+	case "sell-market":
+		return exa.OrderType_MARKET, exa.Side_SELL, nil
+	case "buy-market":
+		return exa.OrderType_MARKET, exa.Side_BUY, nil
 	}
 	return 0, 0, fmt.Errorf("invalid order type: '%s'", otype)
 }
