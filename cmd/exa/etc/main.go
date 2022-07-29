@@ -242,8 +242,7 @@ func main() {
 						log.Fatalf("did not connect: %v", err)
 					}
 					defer conn.Close()
-					placeOrder(conn, exchange, accountId, symbol, otype, amount, price, clientOrderId)
-					return nil
+					return placeOrder(conn, exchange, accountId, symbol, otype, amount, price, clientOrderId)
 				},
 			},
 		},
