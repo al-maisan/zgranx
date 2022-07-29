@@ -111,12 +111,12 @@ func String2pair(s string) (*exa.Pair, error) {
 		}
 		ss := strings.Split(s, q)
 		b, q := ss[0], q
-		ba, ok := exa.Asset_value[b]
+		ba, ok := exa.Asset_value[strings.ToUpper(b)]
 		if !ok {
 			err := fmt.Errorf("unknown base asset: '%s'", b)
 			return nil, err
 		}
-		qa, ok := exa.Asset_value[q]
+		qa, ok := exa.Asset_value[strings.ToUpper(q)]
 		if !ok {
 			err := fmt.Errorf("unknown quote asset: '%s'", q)
 			return nil, err
