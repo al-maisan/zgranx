@@ -81,7 +81,6 @@ message GetOpenOrdersRequest {
   string api_key = 3;
   string api_secret = 4;
   string exchange = 5;
-  optional string account_id = 6;
 }
 
 message Order {
