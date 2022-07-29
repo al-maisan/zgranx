@@ -51,6 +51,8 @@ func Process(dsource, fpath string) ([]Data, error) {
 			od, err = coingeckoParse(file)
 		case "huobi":
 			od, err = huobiParse(file)
+		case "binance":
+			od, err = binanceParse(file)
 		default:
 			log.Errorf("unsupported data source: '%s'", dsource)
 			continue
@@ -77,6 +79,10 @@ func tradingPair(dsource, fpath string) (string, string) {
 		// file names all end on "usdt.ohlc"
 		bn := strings.Split(path.Base(fpath), ".")[0]
 		return strings.TrimSuffix(bn, "usdt"), "usdt"
+	} else if dsource == "binance" {
+		// file names all end on "USDT.ohlc"
+		bn := strings.Split(path.Base(fpath), ".")[0]
+		return strings.ToLower(strings.TrimSuffix(bn, "USDT")), "usdt"
 	} else if dsource == "coingecko" {
 		pair := strings.Split(strings.Split(path.Base(fpath), ".")[0], "_")
 		if len(pair) == 2 {
