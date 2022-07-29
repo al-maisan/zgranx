@@ -31,6 +31,10 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte
 		return nil, err
 	}
 	params, err := signReq(apiKey, apiSecret, req.Method, u.Host, u.Path)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
 	req.URL.RawQuery = (*params).Encode()
 	c := &http.Client{
 		Transport: &http.Transport{
@@ -46,6 +50,10 @@ func doReq(apiKey, apiSecret, method, domain, reqPath string, in []byte) ([]byte
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := c.Do(req)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
