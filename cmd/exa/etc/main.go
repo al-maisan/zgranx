@@ -311,7 +311,7 @@ func getOrders(c *grpc.ClientConn, exchange string) {
 			log.Errorf("nil order for index %d", i)
 			continue
 		}
-		fmt.Printf("[%2d] %8s | %8s | %8s @ %8s | %16s | %8s | %10s | %s\n", i, o.Symbol, o.Type, o.Amount, o.Price, o.Id, o.AccountId, o.State, o.CreatedAt.AsTime().UTC())
+		fmt.Printf("[%2d] %8s | %8s | %8s @ %8s | %16s | %8s | %10s | %12s | %s\n", i, o.Symbol, o.Type, o.Amount, o.Price, o.Id, o.AccountId, o.State, o.ClientOrderId, o.CreatedAt.AsTime().UTC())
 	}
 }
 
