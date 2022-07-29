@@ -394,12 +394,12 @@ func getPair(sym string) (*exa.Pair, error) {
 		return nil, err
 	}
 	b, q := ss[0], ss[1]
-	ba, ok := exa.Asset_value[b]
+	ba, ok := exa.Asset_value[strings.ToUpper(b)]
 	if !ok {
 		err := fmt.Errorf("unknown base asset: '%s'", b)
 		return nil, err
 	}
-	qa, ok := exa.Asset_value[q]
+	qa, ok := exa.Asset_value[strings.ToUpper(q)]
 	if !ok {
 		err := fmt.Errorf("unknown quote asset: '%s'", q)
 		return nil, err
