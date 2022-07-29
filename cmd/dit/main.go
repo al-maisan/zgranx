@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alphabot-fi/T-801/internal/cg/ohlc"
 	"github.com/alphabot-fi/T-801/internal/cg/prices"
+	"github.com/alphabot-fi/T-801/internal/ohlc"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -64,7 +64,7 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					log.Info("fpath = ", fpath)
-					data, err := ohlc.Process(fpath)
+					data, err := ohlc.Process(dsource, fpath)
 					if err != nil {
 						return err
 					}

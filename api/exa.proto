@@ -5,32 +5,144 @@ option go_package = "internal/proto/exa";
 
 
 service EXA {
-  rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {}
+  rpc GetBalances (GetBalancesRequest) returns (GetBalancesResponse) {}
+  rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
+  rpc CancelOrders (CancelOrdersRequest) returns (CancelOrdersResponse) {}
+  rpc PlaceOrder (PlaceOrderRequest) returns (PlaceOrderResponse) {}
 }
 
-enum ExchangeType {
-   BINANCE = 0;
-   FTX = 1;
-   KRAKEN = 2;
-   KUCOIN = 3;
-   GATE_IO = 4;
+enum Asset {
+   NO_ASSET = 0;
+   BTC = 1;
+   ETH = 2;
+   BNB = 3;
+   ADA = 4;
+   SOL = 5;
+   DOT = 6;
+   AVAX = 7;
+   MATIC = 8;
+   LTC = 9;
+   USDT = 10;
 }
 
-message GetBalanceRequest {
+message Pair{
+   Asset base = 1;
+   Asset quote = 2;
+}
+
+enum Side {
+   NO_SIDE = 0;
+   BUY = 1;
+   SELL = 2;
+}
+
+enum OrderType {
+   NO_ORDER_TYPE = 0;
+   MARKET = 1;
+   LIMIT = 2;
+   LIMIT_FOK = 3;
+   IOC = 4;
+}
+
+enum OrderState {
+   NO_ORDER_STATE = 0;
+   CREATED = 1;
+   SUBMITTED = 2;
+   PARTIAL_FILLED = 3;
+   FILLED = 4;
+   PARTIAL_CANCELED = 5;
+   CANCELING = 6;
+   CANCELED = 7;
+}
+
+message GetBalancesRequest {
   google.protobuf.Timestamp request_time = 1;
   string request_id = 2;
   string api_key = 3;
   string api_secret = 4;
-  ExchangeType exchange = 5;
-  optional string asset = 6;
+  string exchange = 5;
 }
 
-message GetBalanceResponse {
+message Balance {
+  string asset = 1;
+  string balance = 2;
+  optional string account = 3;
+}
+
+message GetBalancesResponse {
   google.protobuf.Timestamp response_time = 1;
   string request_id = 2;
-  message Result {
-     string asset = 1;
-     string balance = 2;
-  }
-  repeated Result assets = 3;
+  repeated Balance balances = 3;
+}
+
+message GetOpenOrdersRequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  string api_key = 3;
+  string api_secret = 4;
+  string exchange = 5;
+}
+
+message Order {
+   google.protobuf.Timestamp created_at = 1;
+   string account_id = 2;
+   string id = 3;
+   string client_order_id = 4;
+   Pair pair = 5;
+   string amount = 6;
+   optional string price = 7;
+   Side side = 8;
+   OrderType type = 9;
+   string filled_amount = 10;
+   string filled_fees = 11;
+   OrderState state = 12;
+}
+
+message GetOpenOrdersResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  repeated Order orders = 3;
+}
+
+message CancelOrdersRequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  string api_key = 3;
+  string api_secret = 4;
+  string exchange = 5;
+  repeated string order_ids = 6;
+}
+
+message CancelFailure {
+   string order_id = 1;
+   string error_message = 2;
+
+}
+
+message CancelOrdersResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  repeated string succeeded = 3;
+  repeated CancelFailure failed = 4;
+}
+
+message PlaceOrderRequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  string api_key = 3;
+  string api_secret = 4;
+  string exchange = 5;
+  string account_id = 6;
+  Pair pair = 7;
+  OrderType type = 8;
+  string amount = 9;
+  optional string price = 10;
+  string client_order_id = 11;
+  Side side = 12;
+}
+
+message PlaceOrderResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  string order_id = 3;
 }
