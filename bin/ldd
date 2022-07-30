@@ -1,0 +1,139 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+   echo "no csv file specified"
+   exit 1
+else
+   dif="$1"
+fi
+if [ -z $2 ]; then
+   period="'1M'"
+else
+   period=$(printf "'%s'" "$2")
+fi
+
+echo "period: ${period}"
+
+root=/tmp/T-801/dd
+mkdir -p ${root}
+
+bn=$(basename ${dif} .csv)
+ds=`date "+%Y-%m-%d"`
+fn=${root}/${ds}-${bn}
+base=0
+quote=0
+ds=0
+
+if grep -i -q "Bitstamp" <<< "$bn"; then
+   echo "Bitstamp data"
+   ds=2
+fi
+if grep -i -q "Binance" <<< "$bn"; then
+   echo "Binance data"
+   ds=3
+fi
+if grep -i -q "Bitfinex" <<< "$bn"; then
+   echo "Bitfinex data"
+   ds=4
+fi
+if grep -i -q "FTX" <<< "$bn"; then
+   echo "FTX data"
+   ds=5
+fi
+if grep -i -q "Kucoin" <<< "$bn"; then
+   echo "Kucoin data"
+   ds=8
+fi
+
+if grep -i -q "btc" <<< "$bn"; then
+   echo "base = btc"
+   base=1
+fi
+if grep -i -q "eth" <<< "$bn"; then
+   echo "base = eth"
+   base=2
+fi
+if grep -i -q "bnb" <<< "$bn"; then
+   echo "base = bnb"
+   base=3
+fi
+if grep -i -q "ada" <<< "$bn"; then
+   echo "base = ada"
+   base=4
+fi
+if grep -i -q "sol" <<< "$bn"; then
+   echo "base = sol"
+   base=5
+fi
+if grep -i -q "dot" <<< "$bn"; then
+   echo "base = dot"
+   base=6
+fi
+if grep -i -q "avax" <<< "$bn"; then
+   echo "base = avax"
+   base=7
+fi
+if grep -i -q "matic" <<< "$bn"; then
+   echo "base = matic"
+   base=8
+fi
+if grep -i -q "ltc" <<< "$bn"; then
+   echo "base = ltc"
+   base=9
+fi
+if ((base == 0)); then
+   echo "unknown base asset"
+   exit 2
+fi
+
+if grep -i -q "usd" <<< "$bn"; then
+   echo "quote = usd"
+   quote=11
+fi
+if grep -i -q "usdt" <<< "$bn"; then
+   echo "quote = usdt"
+   quote=10
+fi
+if grep -i -q "usdc" <<< "$bn"; then
+   echo "quote = usdc"
+   quote=17
+fi
+if grep -i -q "eur" <<< "$bn"; then
+   echo "quote = eur"
+   quote=12
+fi
+if grep -i -q "jpy" <<< "$bn"; then
+   echo "quote = jpy"
+   quote=13
+fi
+if grep -i -q "chf" <<< "$bn"; then
+   echo "quote = chf"
+   quote=14
+fi
+if grep -i -q "cad" <<< "$bn"; then
+   echo "quote = cad"
+   quote=15
+fi
+if grep -i -q "krw" <<< "$bn"; then
+   echo "quote = krw"
+   quote=16
+fi
+if ((quote == 0)); then
+   echo "unknown quote asset"
+   exit 3
+fi
+
+if ((ds == 3)); then
+   echo 'insert ignore into ohlc(ts,base,quote,data_source_id,open,high,low,close,period,count,q_volume)' > ${fn}
+   echo 'values' >> ${fn}
+   tail -n +3 ${dif} | csvtool format '(FROM_UNIXTIME(%(1),'${base}','${quote}','${ds}',%(4),%(5),%(6),%(7),'${period}',%(10),%(9)),\n' - | sed -e 's/000,'${base}','${quote}','${ds}'/),'${base}','${quote}','${ds}'/' >> ${fn}
+else
+   echo 'insert ignore into ohlc(ts,base,quote,data_source_id,open,high,low,close,period,q_volume)' > ${fn}
+   echo 'values' >> ${fn}
+   tail -n +3 ${dif} | csvtool format '(FROM_UNIXTIME(%(1)),'${base}','${quote}','${ds}',%(4),%(5),%(6),%(7),'${period}',%(9)),\n' - >> ${fn}
+fi
+
+sed '$ s/.$/;/' ${fn} > ${fn}.sql
+rm -f ${fn}
+
+docker exec -i pT-801db mysql -u root -p${T_801_PDB_ROOT_PASSWORD} -D${T_801_PDB_DATABASE} < ${fn}.sql

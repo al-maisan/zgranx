@@ -62,6 +62,8 @@ pdbinit: pdbhalt
 	-docker container prune -f >/dev/null 2>&1
 	-sudo rm -rf $(pdbdir)
 	-docker run -p 3307:3306 --detach -v $(pdbdir):/var/lib/mysql:z  -v $(pdbinitdir):/docker-entrypoint-initdb.d:z --network T-801net --name pT-801db --env MARIADB_USER=$(T_801_PDB_USER) --env MARIADB_PASSWORD=$(T_801_PDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(T_801_PDB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(T_801_PDB_DATABASE) mariadb:latest
+	-sleep 4
+	-docker exec -i pT-801db mysql -u root -p$(T_801_PDB_ROOT_PASSWORD) -D$(T_801_PDB_DATABASE) -e "SET GLOBAL max_allowed_packet=1072731894;"
 
 
 pdbstart:

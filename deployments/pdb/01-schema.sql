@@ -49,6 +49,7 @@ INSERT INTO data_source(name, uri) VALUES('bitfinex', 'https://www.bitfinex.com/
 INSERT INTO data_source(name, uri) VALUES('ftx', 'https://www.ftx.com/');
 INSERT INTO data_source(name, uri) VALUES('gate_io', 'https://www.gate.io/');
 INSERT INTO data_source(name, uri) VALUES('huobi', 'https://www.huobi.com/');
+INSERT INTO data_source(name, uri) VALUES('kucoin', 'https://www.kucoin.com/');
 
 
 DROP TABLE IF EXISTS pair;
