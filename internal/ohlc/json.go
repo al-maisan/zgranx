@@ -125,13 +125,12 @@ func coingeckoParse(fpath string) ([]OHLC, error) {
 	for _, d := range data {
 		r := OHLC{
 			// we want seconds
-			TS:    uint(d[0].IntPart()) / 1e3,
-			O:     d[1],
-			H:     d[2],
-			L:     d[3],
-			C:     d[4],
-			Count: 0,
-			QVol:  decimal.NewFromFloat(0.0),
+			TS:   uint(d[0].IntPart()) / 1e3,
+			O:    d[1],
+			H:    d[2],
+			L:    d[3],
+			C:    d[4],
+			QVol: decimal.NewFromFloat(0.0),
 		}
 		res = append(res, r)
 	}
