@@ -4,8 +4,8 @@ execution_start=`date -R`
 ds=`date "+%Y-%m-%d"`
 sse=`date "+%s"`
 
-# tlp=${HOME}/Downloads/T-801/bn
-tlp=/tmp/td/T-801/bn
+# tlp=${HOME}/Downloads/T-801/binance
+tlp=/tmp/td/T-801/binance
 dpath=${tlp}/${ds}/ohlc/${sse}
 mkdir -p ${dpath}
 
