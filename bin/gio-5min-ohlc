@@ -2,14 +2,15 @@
 set -e
 execution_start=`date -R`
 ds=`date "+%Y-%m-%d"`
+sse=`date "+%s"`
 
-# tlp=${HOME}/Downloads/T-801/huobi
-tlp=/tmp/td/T-801/huobi
-dpath=${tlp}/${ds}/ohlc
+# tlp=${HOME}/Downloads/T-801/gateio
+tlp=/tmp/td/T-801/gateio
+dpath=${tlp}/${ds}/ohlc/${sse}
 mkdir -p ${dpath}
 
-uri_template='https://api.huobi.pro/market/history/kline?period=5min&size=300&symbol=%s'
-for sym in btcusdt ethusdt adausdt bnbusdt solusdt dotusdt avaxusdt maticusdt ltcusdt; do
+uri_template='https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=%s&limit=2&interval=5m'
+for sym in BTC_USDT ETH_USDT ADA_USDT BNB_USDT SOL_USDT DOT_USDT AVAX_USDT MATIC_USDT LTC_USD; do
    uri=$(printf "${uri_template}" ${sym})
    dlfn="${dpath}/${sym}.ohlc"
    cidx=1
