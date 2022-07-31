@@ -330,3 +330,15 @@ func TestGateioParse(t *testing.T) {
 	assert.Equal(t, 3, len(actual))
 	assert.Equal(t, expected, actual)
 }
+
+func TestFTXParse(t *testing.T) {
+	expected := []OHLC{
+		{1659263700, decimal.New(237550, -1), decimal.New(237890, -1), decimal.New(237550, -1), decimal.New(237800, -1), 0, decimal.New(6183248716, -4)},
+		{1659264000, decimal.New(237800, -1), decimal.New(237800, -1), decimal.New(237800, -1), decimal.New(237800, -1), 0, decimal.New(0, -1)},
+	}
+	actual, err := ftxParse("test_data/ftx/BTC-USD.ohlc")
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, 2, len(actual))
+	assert.Equal(t, expected, actual)
+}
