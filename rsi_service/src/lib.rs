@@ -1,8 +1,11 @@
+use std::time::SystemTime;
 use uuid::Uuid;
 use tonic::Status;
+use rust_decimal::{Decimal};
+use rust_decimal_macros::dec;
+
 pub mod protos;
 use protos::base::DebugData;
-use std::time::SystemTime;
 
 pub fn gen_prost_ts() -> ::prost_types::Timestamp {
     let ct = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
@@ -37,6 +40,37 @@ pub fn gen_debug_data(uuid: Option<String>) -> Result<DebugData, Status> {
         uuid,
     })
 }
+
+pub fn calc_rsi(pd: Vec<Decimal>) -> String {
+    let mut up: Vec<Decimal> = Vec::with_capacity(14);
+    let mut down: Vec<Decimal> = Vec::with_capacity(14);
+
+    let _ = pd.windows(2).inspect(|arr| {
+        if arr[1] > arr[0] {
+            up.push(arr[1] - arr[0]);
+            down.push(Decimal::ZERO);
+        } else if arr[1] < arr[0] {
+            up.push(Decimal::ZERO);
+            down.push(arr[0] - arr[1]);
+        } else {
+            up.push(Decimal::ZERO);
+            down.push(Decimal::ZERO);
+        }
+    }).collect::<Vec<_>>();
+
+    let rs = calc_smma(up) / calc_smma(down);
+
+    let rsi = Decimal::from(100) - (Decimal::from(100)/(Decimal::from(1)+rs));
+
+    return rsi.to_string();
+}
+
+fn calc_smma(pd: Vec<Decimal>) -> Decimal {
+    pd.iter().enumerate().fold(dec!(0), |accum, e| {
+        (accum * Decimal::from(e.0) + e.1)/(Decimal::from(e.0 + 1))
+    })
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
