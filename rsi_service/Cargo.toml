@@ -9,13 +9,10 @@ edition = "2021"
 tonic = "0.7"
 prost = "0.10"
 prost-types = "0.10"
+rust_decimal_macros = "1.25"
+rust_decimal = { version = "1.25", features = ["maths"] }
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 uuid = { version = "1.1", features = ["v4"] }
-
-
-#[[bin]] # Bin to run the rsi_service
-#name = "rsi-grpc-server"
-#path = "src/server.rs"
 
 [build-dependencies]
 tonic-build = "0.7"
