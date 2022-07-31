@@ -317,3 +317,16 @@ func TestBinanceParseFileBTC(t *testing.T) {
 	assert.Equal(t, 3, len(actual))
 	assert.Equal(t, expected, actual)
 }
+
+func TestGateioParse(t *testing.T) {
+	expected := []OHLC{
+		{1659146100, decimal.New(2371595, -2), decimal.New(2397435, -2), decimal.New(2371595, -2), decimal.New(2390991, -2), 0, decimal.New(18750021663, -5)},
+		{1659146400, decimal.New(2391158, -2), decimal.New(2392562, -2), decimal.New(2388189, -2), decimal.New(2392127, -2), 0, decimal.New(35638092101, -6)},
+		{1659235800, decimal.New(2379206, -2), decimal.New(2379206, -2), decimal.New(2379206, -2), decimal.New(2379206, -2), 0, decimal.New(0, 0)},
+	}
+	actual, err := gateioParse("test_data/gateio/BTC_USD.json")
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, 3, len(actual))
+	assert.Equal(t, expected, actual)
+}
