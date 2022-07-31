@@ -86,10 +86,6 @@ if ((base == 0)); then
    exit 2
 fi
 
-if grep -i -q "usd" <<< "$bn"; then
-   echo "quote = usd"
-   quote=11
-fi
 if grep -i -q "usdt" <<< "$bn"; then
    echo "quote = usdt"
    quote=10
@@ -98,6 +94,14 @@ if grep -i -q "usdc" <<< "$bn"; then
    echo "quote = usdc"
    quote=17
 fi
+
+if ((quote == 0)); then
+   if grep -i -q "usd" <<< "$bn"; then
+      echo "quote = usd"
+      quote=11
+   fi
+fi
+
 if grep -i -q "eur" <<< "$bn"; then
    echo "quote = eur"
    quote=12

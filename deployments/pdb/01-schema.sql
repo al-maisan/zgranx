@@ -76,7 +76,7 @@ INSERT INTO pair(base, quote, symbol) VALUES(9,10,'ltc-usdt');
 DROP TABLE IF EXISTS price;
 CREATE TABLE price (
      id MEDIUMINT NOT NULL AUTO_INCREMENT,
-     ts TIMESTAMP NOT NULL,
+     ts TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
      base MEDIUMINT NOT NULL,
      quote MEDIUMINT NOT NULL,
      data_source_id MEDIUMINT NOT NULL,
@@ -90,13 +90,15 @@ CREATE TABLE price (
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
+     INDEX(ts, period),
+     INDEX(base, quote, period, ts),
      unique(ts, base, quote, period, data_source_id)
  );
 
 DROP TABLE IF EXISTS ohlc;
 CREATE TABLE ohlc (
      id MEDIUMINT NOT NULL AUTO_INCREMENT,
-     ts TIMESTAMP NOT NULL,
+     ts TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
      base MEDIUMINT NOT NULL,
      quote MEDIUMINT NOT NULL,
      data_source_id MEDIUMINT NOT NULL,
@@ -113,5 +115,7 @@ CREATE TABLE ohlc (
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
+     INDEX(ts, period),
+     INDEX(base, quote, period, ts),
      unique(ts, base, quote, period, data_source_id)
  );
