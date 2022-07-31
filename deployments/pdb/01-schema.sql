@@ -47,7 +47,7 @@ INSERT INTO data_source(name, uri) VALUES('bitstamp', 'https://www.bitstamp.net/
 INSERT INTO data_source(name, uri) VALUES('binance', 'https://www.binance.com/en');
 INSERT INTO data_source(name, uri) VALUES('bitfinex', 'https://www.bitfinex.com/');
 INSERT INTO data_source(name, uri) VALUES('ftx', 'https://www.ftx.com/');
-INSERT INTO data_source(name, uri) VALUES('gate_io', 'https://www.gate.io/');
+INSERT INTO data_source(name, uri) VALUES('gateio', 'https://www.gate.io/');
 INSERT INTO data_source(name, uri) VALUES('huobi', 'https://www.huobi.com/');
 INSERT INTO data_source(name, uri) VALUES('kucoin', 'https://www.kucoin.com/');
 

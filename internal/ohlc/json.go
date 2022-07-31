@@ -53,6 +53,8 @@ func Process(dsource, fpath string) ([]Data, error) {
 			od, err = huobiParse(file)
 		case "binance":
 			od, err = binanceParse(file)
+		case "gateio":
+			od, err = gateioParse(file)
 		default:
 			log.Errorf("unsupported data source: '%s'", dsource)
 			continue
@@ -83,6 +85,11 @@ func tradingPair(dsource, fpath string) (string, string) {
 		// file names all end on "USDT.ohlc"
 		bn := strings.Split(path.Base(fpath), ".")[0]
 		return strings.ToLower(strings.TrimSuffix(bn, "USDT")), "usdt"
+	} else if dsource == "gateio" {
+		pair := strings.Split(strings.Split(path.Base(fpath), ".")[0], "_")
+		if len(pair) == 2 {
+			return strings.ToLower(pair[0]), strings.ToLower(pair[1])
+		}
 	} else if dsource == "coingecko" {
 		pair := strings.Split(strings.Split(path.Base(fpath), ".")[0], "_")
 		if len(pair) == 2 {
@@ -206,6 +213,34 @@ func binanceParse(fpath string) ([]OHLC, error) {
 			C:     d[4],
 			Count: uint(d[8].IntPart()),
 			QVol:  d[7],
+		}
+		res = append(res, r)
+	}
+	return res, nil
+}
+
+func gateioParse(fpath string) ([]OHLC, error) {
+	var res []OHLC
+	bs, err := ioutil.ReadFile(fpath)
+	if err != nil {
+		log.Error("failed to read ", fpath)
+		return nil, err
+	}
+	var data [][]decimal.Decimal
+	err = json.Unmarshal(bs, &data)
+	if err != nil {
+		log.Error("failed to parse ", fpath)
+		return nil, err
+	}
+	for _, d := range data {
+		r := OHLC{
+			// we want seconds
+			TS:   uint(d[0].IntPart()),
+			O:    d[5],
+			H:    d[3],
+			L:    d[4],
+			C:    d[2],
+			QVol: d[1],
 		}
 		res = append(res, r)
 	}
