@@ -73,9 +73,34 @@ fn calc_smma(pd: Vec<Decimal>) -> Decimal {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn it_works() {
         let result = 2 + 2;
         assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn test_calc_rsi() {
+        assert_eq!(calc_rsi(vec![
+                            dec!(10),
+                            dec!(11.3),
+                            dec!(10.2),
+                            dec!(11.5),
+                            dec!(11.8),
+                            dec!(10.9)
+        ]),"59.183673469387755102040816327");
+
+        assert_eq!(calc_rsi(vec![
+                            dec!(3451.59),
+                            dec!(3532.12),
+                            dec!(3545.91),
+                            dec!(3670.85),
+                            dec!(3580.32),
+                            dec!(3556.94),
+                            dec!(3639.40),
+                            dec!(3687.15)
+        ]), "75.417583840476498769908066813")
     }
 }
