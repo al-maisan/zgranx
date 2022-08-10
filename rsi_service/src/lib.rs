@@ -3,6 +3,7 @@ use uuid::Uuid;
 use tonic::{Request, Response, Status};
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
+use sqlx::mysql::MySqlPoolOptions;
 
 pub mod protos;
 use protos::{
@@ -27,7 +28,7 @@ pub fn gen_prost_ts() -> ::prost_types::Timestamp {
     }
 }
 
-pub fn gen_debug_data(uuid: Option<String>) -> Result<DebugData, Status> {
+fn gen_debug_data(uuid: Option<String>) -> Result<DebugData, Status> {
     let uuid = match uuid {
         Some(s) => s,
         None => 
@@ -45,7 +46,7 @@ pub fn gen_debug_data(uuid: Option<String>) -> Result<DebugData, Status> {
     })
 }
 
-pub fn calc_rsi(pd: Vec<Decimal>) -> String {
+fn calc_rsi(pd: Vec<Decimal>) -> String {
     let mut up: Vec<Decimal> = Vec::with_capacity(14);
     let mut down: Vec<Decimal> = Vec::with_capacity(14);
 
@@ -102,7 +103,13 @@ impl rsi_server::Rsi for MyRsi {
 
         //
         //get price data from db and populate pd vec here
-        //
+        /*
+
+        let pool = MySqlPoolOptions::new()
+            .max_connections(5)
+            .connect("jdbc:mysql://user:pass@127.0.0.1/").await.unwrap();
+
+        */
 
         let rsival = calc_rsi(pd);
 
