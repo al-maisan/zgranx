@@ -2,13 +2,14 @@ use std::time::SystemTime;
 use uuid::Uuid;
 use tonic::{Request, Response, Status};
 use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 use rust_decimal_macros::dec;
 use sqlx::mysql::MySqlPoolOptions;
 
 pub mod protos;
 use protos::{
     base::DebugData,
-    rsi::{PeriodLength, RsiData, rsi_server},
+    rsi::{PriceData, RsiData, rsi_server},
     monitor::{PingRequest, PingResponse, monitor_server},
 };
 
@@ -98,22 +99,13 @@ pub struct MyRsi {}
 
 #[tonic::async_trait]
 impl rsi_server::Rsi for MyRsi {
-    async fn get_rsi(&self, request: Request<PeriodLength>) -> Result<Response<RsiData>, Status> {
-        let pd: Vec<Decimal> = Vec::new();
+    async fn get_rsi(&self, request: Request<PriceData>) -> Result<Response<RsiData>, Status> {
+        let PriceData { pd, debug } = request.into_inner();
 
-        //
-        //get price data from db and populate pd vec here
-        /*
-
-        let pool = MySqlPoolOptions::new()
-            .max_connections(5)
-            .connect("jdbc:mysql://user:pass@127.0.0.1/").await.unwrap();
-
-        */
+        let pd: Vec<Decimal> = pd.iter().map(|x| { Decimal::from_str(x).unwrap() }).collect();
 
         let rsival = calc_rsi(pd);
 
-        let PeriodLength { pl: _, debug } = request.into_inner();
         if let Some(debug) = debug {
             let DebugData { ts: _, uuid } = debug;
             let debug = gen_debug_data(Some(uuid))?;
@@ -129,12 +121,6 @@ impl rsi_server::Rsi for MyRsi {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
 
     #[test]
     fn test_calc_rsi() {
