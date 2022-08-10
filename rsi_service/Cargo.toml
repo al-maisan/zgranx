@@ -11,7 +11,8 @@ prost = "0.10"
 prost-types = "0.10"
 rust_decimal_macros = "1.25"
 rust_decimal = { version = "1.25", features = ["maths"] }
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+sqlx = { version = "0.6", features = ["mysql", "runtime-tokio-native-tls"] }
+tokio = { version = "1.20", features = ["macros", "rt-multi-thread"] }
 uuid = { version = "1.1", features = ["v4"] }
 
 [build-dependencies]
