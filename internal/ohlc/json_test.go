@@ -304,3 +304,41 @@ func TestHuobiParseFileBTC(t *testing.T) {
 	assert.Equal(t, 3, len(actual))
 	assert.Equal(t, expected, actual)
 }
+
+func TestBinanceParseFileBTC(t *testing.T) {
+	expected := []OHLC{
+		{1658973300, decimal.New(2277951000000, -8), decimal.New(2278456000000, -8), decimal.New(2275161000000, -8), decimal.New(2277569000000, -8), 12825, decimal.New(713298478100530, -8)},
+		{1658973600, decimal.New(2277569000000, -8), decimal.New(2278128000000, -8), decimal.New(2274361000000, -8), decimal.New(2275008000000, -8), 11552, decimal.New(599465551853210, -8)},
+		{1659063000, decimal.New(2378158000000, -8), decimal.New(2378159000000, -8), decimal.New(2377836000000, -8), decimal.New(2377873000000, -8), 73, decimal.New(1029222346490, -8)},
+	}
+	actual, err := binanceParse("test_data/binance/BTCUSDT.ohlc")
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, 3, len(actual))
+	assert.Equal(t, expected, actual)
+}
+
+func TestGateioParse(t *testing.T) {
+	expected := []OHLC{
+		{1659146100, decimal.New(2371595, -2), decimal.New(2397435, -2), decimal.New(2371595, -2), decimal.New(2390991, -2), 0, decimal.New(18750021663, -5)},
+		{1659146400, decimal.New(2391158, -2), decimal.New(2392562, -2), decimal.New(2388189, -2), decimal.New(2392127, -2), 0, decimal.New(35638092101, -6)},
+		{1659235800, decimal.New(2379206, -2), decimal.New(2379206, -2), decimal.New(2379206, -2), decimal.New(2379206, -2), 0, decimal.New(0, 0)},
+	}
+	actual, err := gateioParse("test_data/gateio/BTC_USD.json")
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, 3, len(actual))
+	assert.Equal(t, expected, actual)
+}
+
+func TestFTXParse(t *testing.T) {
+	expected := []OHLC{
+		{1659263700, decimal.New(237550, -1), decimal.New(237890, -1), decimal.New(237550, -1), decimal.New(237800, -1), 0, decimal.New(6183248716, -4)},
+		{1659264000, decimal.New(237800, -1), decimal.New(237800, -1), decimal.New(237800, -1), decimal.New(237800, -1), 0, decimal.New(0, -1)},
+	}
+	actual, err := ftxParse("test_data/ftx/BTC-USD.ohlc")
+	assert.Nil(t, err)
+	assert.NotNil(t, actual)
+	assert.Equal(t, 2, len(actual))
+	assert.Equal(t, expected, actual)
+}

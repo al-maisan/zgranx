@@ -19,7 +19,7 @@ var (
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Overload()
 	if err != nil {
 		log.Error("Error loading .env file")
 	}

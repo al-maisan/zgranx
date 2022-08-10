@@ -2,14 +2,15 @@
 set -e
 execution_start=`date -R`
 ds=`date "+%Y-%m-%d"`
+sse=`date "+%s"`
 
-# tlp=${HOME}/Downloads/T-801/huobi
-tlp=/tmp/td/T-801/huobi
-dpath=${tlp}/${ds}/ohlc
+# tlp=${HOME}/Downloads/T-801/binance
+tlp=/tmp/td/T-801/binance
+dpath=${tlp}/${ds}/ohlc/${sse}
 mkdir -p ${dpath}
 
-uri_template='https://api.huobi.pro/market/history/kline?period=5min&size=300&symbol=%s'
-for sym in btcusdt ethusdt adausdt bnbusdt solusdt dotusdt avaxusdt maticusdt ltcusdt; do
+uri_template='https://api.binance.com/api/v3/klines?symbol=%s&interval=5m&limit=2'
+for sym in BTCUSDT ETHUSDT ADAUSDT BNBUSDT SOLUSDT DOTUSDT AVAXUSDT MATICUSDT LTCUSDT; do
    uri=$(printf "${uri_template}" ${sym})
    dlfn="${dpath}/${sym}.ohlc"
    cidx=1

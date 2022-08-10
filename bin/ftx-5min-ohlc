@@ -2,16 +2,21 @@
 set -e
 execution_start=`date -R`
 ds=`date "+%Y-%m-%d"`
+sse=`date "+%s"`
 
-# tlp=${HOME}/Downloads/T-801/bn
-tlp=/tmp/td/T-801/bn
-dpath=${tlp}/${ds}/ohlc
+# tlp=${HOME}/Downloads/T-801/ftx
+tlp=/tmp/td/T-801/ftx
+dpath=${tlp}/${ds}/ohlc/${sse}
 mkdir -p ${dpath}
 
-uri_template='https://api.binance.com/api/v3/klines?symbol=%s&interval=5m&limit=300'
-for sym in BTCUSDT ETHUSDT ADAUSDT BNBUSDT SOLUSDT DOTUSDT AVAXUSDT MATICUSDT LTCUSDT; do
-   uri=$(printf "${uri_template}" ${sym})
-   dlfn="${dpath}/${sym}.ohlc"
+st=`date +"%s"`
+((st = st - 400))
+
+uri_template='https://ftx.com/api/markets/%s/candles?resolution=300&start_time=%s'
+for sym in BTC/USD ETH/USD BNB/USD SOL/USD DOT/USD AVAX/USD MATIC/USD LTC/USD; do
+   uri=$(printf "${uri_template}" ${sym} ${st})
+   fbn=$(echo ${sym} | sed -e 's,/,-,')
+   dlfn="${dpath}/${fbn}.ohlc"
    cidx=1
    echo " >> ${sym}"
    while true; do

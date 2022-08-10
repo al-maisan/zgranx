@@ -47,8 +47,9 @@ INSERT INTO data_source(name, uri) VALUES('bitstamp', 'https://www.bitstamp.net/
 INSERT INTO data_source(name, uri) VALUES('binance', 'https://www.binance.com/en');
 INSERT INTO data_source(name, uri) VALUES('bitfinex', 'https://www.bitfinex.com/');
 INSERT INTO data_source(name, uri) VALUES('ftx', 'https://www.ftx.com/');
-INSERT INTO data_source(name, uri) VALUES('gate_io', 'https://www.gate.io/');
+INSERT INTO data_source(name, uri) VALUES('gateio', 'https://www.gate.io/');
 INSERT INTO data_source(name, uri) VALUES('huobi', 'https://www.huobi.com/');
+INSERT INTO data_source(name, uri) VALUES('kucoin', 'https://www.kucoin.com/');
 
 
 DROP TABLE IF EXISTS pair;
@@ -75,7 +76,7 @@ INSERT INTO pair(base, quote, symbol) VALUES(9,10,'ltc-usdt');
 DROP TABLE IF EXISTS price;
 CREATE TABLE price (
      id MEDIUMINT NOT NULL AUTO_INCREMENT,
-     ts TIMESTAMP NOT NULL,
+     ts TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
      base MEDIUMINT NOT NULL,
      quote MEDIUMINT NOT NULL,
      data_source_id MEDIUMINT NOT NULL,
@@ -89,13 +90,15 @@ CREATE TABLE price (
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
+     INDEX(ts, period),
+     INDEX(base, quote, period, ts),
      unique(ts, base, quote, period, data_source_id)
  );
 
 DROP TABLE IF EXISTS ohlc;
 CREATE TABLE ohlc (
      id MEDIUMINT NOT NULL AUTO_INCREMENT,
-     ts TIMESTAMP NOT NULL,
+     ts TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
      base MEDIUMINT NOT NULL,
      quote MEDIUMINT NOT NULL,
      data_source_id MEDIUMINT NOT NULL,
@@ -112,5 +115,7 @@ CREATE TABLE ohlc (
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
+     INDEX(ts, period),
+     INDEX(base, quote, period, ts),
      unique(ts, base, quote, period, data_source_id)
  );
