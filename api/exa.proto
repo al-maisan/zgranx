@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
+import "base.proto"
 
 option go_package = "internal/proto/exa";
 
@@ -9,25 +10,6 @@ service EXA {
   rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
   rpc CancelOrders (CancelOrdersRequest) returns (CancelOrdersResponse) {}
   rpc PlaceOrder (PlaceOrderRequest) returns (PlaceOrderResponse) {}
-}
-
-enum Asset {
-   NO_ASSET = 0;
-   BTC = 1;
-   ETH = 2;
-   BNB = 3;
-   ADA = 4;
-   SOL = 5;
-   DOT = 6;
-   AVAX = 7;
-   MATIC = 8;
-   LTC = 9;
-   USDT = 10;
-}
-
-message Pair{
-   Asset base = 1;
-   Asset quote = 2;
 }
 
 enum Side {
