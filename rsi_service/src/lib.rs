@@ -1,11 +1,15 @@
 use std::time::SystemTime;
 use uuid::Uuid;
-use tonic::Status;
-use rust_decimal::{Decimal};
+use tonic::{Request, Response, Status};
+use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 
 pub mod protos;
-use protos::base::DebugData;
+use protos::{
+    base::DebugData,
+    rsi::{PeriodLength, RsiData, rsi_server},
+    monitor::{PingRequest, PingResponse, monitor_server},
+};
 
 pub fn gen_prost_ts() -> ::prost_types::Timestamp {
     let ct = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
@@ -69,6 +73,50 @@ fn calc_smma(pd: Vec<Decimal>) -> Decimal {
     pd.iter().enumerate().fold(dec!(0), |accum, e| {
         (accum * Decimal::from(e.0) + e.1)/(Decimal::from(e.0 + 1))
     })
+}
+
+#[derive(Debug, Default)]
+pub struct MyMonitor {}
+
+#[tonic::async_trait]
+impl monitor_server::Monitor for MyMonitor {
+    async fn ping(&self, request: Request<PingRequest>) -> Result<Response<PingResponse>, Status> {
+        println!("Got a request: {:?}", request);
+
+        let reply = PingResponse {
+            response_time: Some(gen_prost_ts()),
+            version: String::from("0.0.1")
+        };
+
+        Ok(Response::new(reply))
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct MyRsi {}
+
+#[tonic::async_trait]
+impl rsi_server::Rsi for MyRsi {
+    async fn get_rsi(&self, request: Request<PeriodLength>) -> Result<Response<RsiData>, Status> {
+        let pd: Vec<Decimal> = Vec::new();
+
+        //
+        //get price data from db and populate pd vec here
+        //
+
+        let rsival = calc_rsi(pd);
+
+        let PeriodLength { pl: _, debug } = request.into_inner();
+        if let Some(debug) = debug {
+            let DebugData { ts: _, uuid } = debug;
+            let debug = gen_debug_data(Some(uuid))?;
+
+            return Ok(Response::new(RsiData { rsival, debug: Some(debug) }));
+        } else {
+            let debug = gen_debug_data(None)?;
+            return Ok(Response::new(RsiData { rsival, debug: Some(debug) }));
+        }
+    }
 }
 
 #[cfg(test)]
