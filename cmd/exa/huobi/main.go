@@ -116,7 +116,7 @@ func (s *server) GetBalances(ctx context.Context, in *exa.GetBalancesRequest) (*
 
 func main() {
 	flag.Parse()
-	version = fmt.Sprintf("%s::%s", bts, rev)
+	version = fmt.Sprintf("Huobi exchange adapter -- %s::%s", bts, rev)
 	fmt.Printf("huobi: %s\n", version)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {

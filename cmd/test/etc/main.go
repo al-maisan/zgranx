@@ -346,6 +346,10 @@ func ping(c *grpc.ClientConn, exchange string) {
 		log.Errorf("failed to get ping EXA for %s, %v", exchange, err)
 		return
 	}
+	if !strings.Contains(res.Version, "exchange adapter") {
+		log.Errorf("wrong service, %s", res.Version)
+		return
+	}
 	log.Infof("ping response from %s EXA at %v, version('%s')", exchange, res.ResponseTime.AsTime().UTC(), res.Version)
 }
 

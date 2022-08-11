@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alphabot-fi/T-801/internal/proto/ma"
@@ -149,6 +150,10 @@ func ping(c *grpc.ClientConn) {
 	res, err := cmon.Ping(ctx, &req)
 	if err != nil {
 		log.Errorf("failed to ping moving average service, %v", err)
+		return
+	}
+	if !strings.HasPrefix(res.Version, "moving average service") {
+		log.Errorf("wrong service, %s", res.Version)
 		return
 	}
 	log.Infof("ping response from moving average service at %v, version('%s')", res.ResponseTime.AsTime().UTC(), res.Version)

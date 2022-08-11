@@ -70,7 +70,7 @@ func (s *server) S(ctx context.Context, in *pma.MARequest) (*pma.MAResponse, err
 
 func main() {
 	flag.Parse()
-	version = fmt.Sprintf("%s::%s", bts, rev)
+	version = fmt.Sprintf("moving average service -- %s::%s", bts, rev)
 	fmt.Printf("moving average service: %s\n", version)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
