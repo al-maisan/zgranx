@@ -229,23 +229,26 @@ mod tests {
 
         let r = MyRsi::default();
 
-        if let Ok(rsidat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
-            let rsidat = rsidat.into_inner();
-            if let RsiData { rsival, debug: Some(DebugData { ts: _, uuid }) } = rsidat {
-                assert_eq!(
-                    rsival,
-                    "75.417583840476498769908066813".to_string()
-                );
+        match tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            Ok(rsidat) => {
+                let rsidat = rsidat.into_inner();
+                if let RsiData { rsival, debug: Some(DebugData { ts: _, uuid }) } = rsidat {
+                    assert_eq!(
+                        rsival,
+                        "75.417583840476498769908066813".to_string()
+                    );
 
-                assert_eq!(
-                    uuid,
-                    uuid_orig
-                );
-            } else {
-                panic!("get_rsi did not return debug data");
+                    assert_eq!(
+                        uuid,
+                        uuid_orig
+                    );
+                } else {
+                    panic!("get_rsi did not return debug data");
+                }
+            },
+            Err(e) => {
+                panic!("get_rsi returned error when not supposed to: {:?}", e);
             }
-        } else {
-            panic!("get_rsi returned error when not supposed to");
         }
     }
 }
