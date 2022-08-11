@@ -6,7 +6,7 @@ package base;
 
 message RequestInfo {
   google.protobuf.Timestamp ts = 1; // timestamp
-  string uuid = 2; // uuidv4
+  string id = 2;
 }
 
 enum Asset {

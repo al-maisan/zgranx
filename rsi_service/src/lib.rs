@@ -8,7 +8,7 @@ use tokio_test;
 
 pub mod protos;
 use protos::{
-    base::DebugData,
+    base::RequestInfo,
     rsi::{PriceData, RsiData, rsi_server},
     monitor::{PingRequest, PingResponse, monitor_server},
 };
@@ -29,22 +29,22 @@ pub fn gen_prost_ts() -> ::prost_types::Timestamp {
     }
 }
 
-fn gen_debug_data(uuid: Option<String>) -> DebugData {
+fn gen_debug_data(uuid: Option<String>) -> RequestInfo {
     let uuid = match uuid {
         Some(s) => s,
         None => Uuid::new_v4().as_simple().to_string(),
     };
 
-    DebugData { 
+    RequestInfo { 
         ts: Some(gen_prost_ts()),
-        uuid,
+        id: uuid,
     }
 }
 
-impl DebugData {
+impl RequestInfo {
     fn get_uuid(&self) -> String {
-        let DebugData { ts: _, uuid } = self;
-        return uuid.clone();
+        let RequestInfo { ts: _, id } = self;
+        return id.clone();
     }
 }
 
@@ -113,8 +113,8 @@ impl rsi_server::Rsi for MyRsi {
         let rsival = calc_rsi(pd);
 
         if let Some(debug) = debug {
-            let DebugData { ts: _, uuid } = debug;
-            let debug = gen_debug_data(Some(uuid));
+            let RequestInfo { ts: _, id } = debug;
+            let debug = gen_debug_data(Some(id));
 
             return Ok(Response::new(RsiData { rsival, debug: Some(debug) }));
         } else {
@@ -231,14 +231,14 @@ mod tests {
         match tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
             Ok(rsidat) => {
                 let rsidat = rsidat.into_inner();
-                if let RsiData { rsival, debug: Some(DebugData { ts: _, uuid }) } = rsidat {
+                if let RsiData { rsival, debug: Some(RequestInfo { ts: _, id }) } = rsidat {
                     assert_eq!(
                         rsival,
                         "75.417583840476498769908066813".to_string()
                     );
 
                     assert_eq!(
-                        uuid,
+                        id,
                         uuid_orig
                     );
                 } else {
