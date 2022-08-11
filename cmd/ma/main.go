@@ -43,21 +43,53 @@ func (s *server) S(ctx context.Context, in *pma.MARequest) (*pma.MAResponse, err
 	// check period
 	period := in.GetPeriod()
 	if period == 0 {
-		err := status.Errorf(codes.InvalidArgument, "invalid period: %d", period)
+		err := status.Errorf(codes.InvalidArgument, "SMA: invalid period: %d", period)
 		return nil, err
 	}
 
 	// make sure we have enough price values
 	pal := uint32(len(in.GetPrices()))
 	if period != pal {
-		err := status.Errorf(codes.InvalidArgument, "mismatched period: %d != %d", period, pal)
+		err := status.Errorf(codes.InvalidArgument, "SMA: mismatched period: %d != %d", period, pal)
 		return nil, err
 	}
 
 	// calculate SMA
 	mav, err := ma.SMA(in.GetPrices())
 	if err != nil {
-		err := status.Errorf(codes.Internal, "error: %v", err)
+		err := status.Errorf(codes.Internal, "SMA: error: %v", err)
+		return nil, err
+	}
+	resp := pma.MAResponse{
+		ResponseTime: timestamppb.Now(),
+		RequestId:    in.GetRequestId(),
+		Result:       mav,
+	}
+	return &resp, nil
+}
+
+func (s *server) E(ctx context.Context, in *pma.MARequest) (*pma.MAResponse, error) {
+	log.Printf("EMA request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
+	log.Printf("EMA request: period: %d", in.GetPeriod())
+
+	// check period
+	period := in.GetPeriod()
+	if period == 0 {
+		err := status.Errorf(codes.InvalidArgument, "EMA: invalid period: %d", period)
+		return nil, err
+	}
+
+	// make sure we have enough price values
+	pal := uint32(len(in.GetPrices()))
+	if period != pal {
+		err := status.Errorf(codes.InvalidArgument, "EMA: mismatched period: %d != %d", period, pal)
+		return nil, err
+	}
+
+	// calculate EMA
+	mav, err := ma.EMA(in.GetPrices())
+	if err != nil {
+		err := status.Errorf(codes.Internal, "EMA: error: %v", err)
 		return nil, err
 	}
 	resp := pma.MAResponse{
