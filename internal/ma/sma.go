@@ -1,12 +1,16 @@
 package ma
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/shopspring/decimal"
 )
 
 func SMA(prices []string) (string, error) {
+	if len(prices) == 0 {
+		return "", errors.New("empty price array")
+	}
 	var pvs []decimal.Decimal
 	zero := decimal.NewFromFloat(0.0)
 
