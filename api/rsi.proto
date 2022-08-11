@@ -11,10 +11,10 @@ service Rsi {
 
 message PriceData {
   repeated string pd = 1;
-  base.DebugData debug = 2;
+  base.RequestInfo debug = 2;
 }
 
 message RsiData {
   string rsival = 1;
-  base.DebugData debug = 2;
+  base.RequestInfo debug = 2;
 }
