@@ -21,10 +21,12 @@ build: proto
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/dit/main.go
 	rm -f $(BIN_DIR)/etc
 	go build -o $(BIN_DIR)/etc -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/etc/main.go
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/test/etc/main.go
 	rm -f $(BIN_DIR)/huobi
 	go build -o $(BIN_DIR)/huobi -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/huobi/main.go
+	go build -o $(BIN_DIR)/ma -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/ma/main.go
 
 
 proto:

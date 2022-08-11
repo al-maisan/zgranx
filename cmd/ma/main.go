@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"net"
 
-	ma "github.com/alphabot-fi/T-801/internal/proto/ma"
+	"github.com/alphabot-fi/T-801/internal/ma"
+	pma "github.com/alphabot-fi/T-801/internal/proto/ma"
 	monitor "github.com/alphabot-fi/T-801/internal/proto/monitor"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -23,7 +24,7 @@ var (
 
 type server struct {
 	monitor.UnimplementedMonitorServer
-	ma.UnimplementedMAServer
+	pma.UnimplementedMAServer
 }
 
 func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.PingResponse, error) {
@@ -35,17 +36,34 @@ func (s *server) Ping(ctx context.Context, in *monitor.PingRequest) (*monitor.Pi
 	return &resp, nil
 }
 
-func (s *server) S(ctx context.Context, in *ma.MARequest) (*ma.MAResponse, error) {
+func (s *server) S(ctx context.Context, in *pma.MARequest) (*pma.MAResponse, error) {
 	log.Printf("SMA request: %v -- %v", in.GetRequestId(), in.GetRequestTime().AsTime())
 	log.Printf("SMA request: period: %d", in.GetPeriod())
+
+	// check period
 	period := in.GetPeriod()
 	if period == 0 {
 		err := status.Errorf(codes.InvalidArgument, "invalid period: %d", period)
 		return nil, err
 	}
-	resp := ma.MAResponse{
+
+	// make sure we have enough price values
+	pal := uint32(len(in.GetPrices()))
+	if period != pal {
+		err := status.Errorf(codes.InvalidArgument, "mismatched period: %d != %d", period, pal)
+		return nil, err
+	}
+
+	// calculate SMA
+	mav, err := ma.SMA(in.GetPrices())
+	if err != nil {
+		err := status.Errorf(codes.Internal, "error: %v", err)
+		return nil, err
+	}
+	resp := pma.MAResponse{
 		ResponseTime: timestamppb.Now(),
 		RequestId:    in.GetRequestId(),
+		Result:       mav,
 	}
 	return &resp, nil
 }
@@ -61,7 +79,7 @@ func main() {
 	s := grpc.NewServer()
 	ss := server{}
 	monitor.RegisterMonitorServer(s, &ss)
-	ma.RegisterMAServer(s, &ss)
+	pma.RegisterMAServer(s, &ss)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
