@@ -5,6 +5,7 @@ use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
 use rust_decimal_macros::dec;
 use sqlx::mysql::MySqlPoolOptions;
+use tokio_test;
 
 pub mod protos;
 use protos::{
@@ -29,22 +30,23 @@ pub fn gen_prost_ts() -> ::prost_types::Timestamp {
     }
 }
 
-fn gen_debug_data(uuid: Option<String>) -> Result<DebugData, Status> {
+fn gen_debug_data(uuid: Option<String>) -> DebugData {
     let uuid = match uuid {
         Some(s) => s,
-        None => 
-            match std::str::from_utf8(Uuid::new_v4().as_bytes()) {
-                Ok(s) => String::from(s),
-                Err(e) => 
-                    return Err(Status::new(::tonic::Code::Aborted, 
-                        format!("generated UUID contains invalid utf8: {}", e))),
-            }
+        None => Uuid::new_v4().as_simple().to_string(),
     };
 
-    Ok(DebugData { 
+    DebugData { 
         ts: Some(gen_prost_ts()),
         uuid,
-    })
+    }
+}
+
+impl DebugData {
+    fn get_uuid(&self) -> String {
+        let DebugData { ts: _, uuid } = self;
+        return uuid.clone();
+    }
 }
 
 fn calc_rsi(pd: Vec<Decimal>) -> String {
@@ -102,17 +104,22 @@ impl rsi_server::Rsi for MyRsi {
     async fn get_rsi(&self, request: Request<PriceData>) -> Result<Response<RsiData>, Status> {
         let PriceData { pd, debug } = request.into_inner();
 
+        if pd.len() < 3 || pd.len() > 80 {
+            return Err(Status::new(tonic::Code::InvalidArgument, "too many or too few price values"));
+        }
+
         let pd: Vec<Decimal> = pd.iter().map(|x| { Decimal::from_str(x).unwrap() }).collect();
+
 
         let rsival = calc_rsi(pd);
 
         if let Some(debug) = debug {
             let DebugData { ts: _, uuid } = debug;
-            let debug = gen_debug_data(Some(uuid))?;
+            let debug = gen_debug_data(Some(uuid));
 
             return Ok(Response::new(RsiData { rsival, debug: Some(debug) }));
         } else {
-            let debug = gen_debug_data(None)?;
+            let debug = gen_debug_data(None);
             return Ok(Response::new(RsiData { rsival, debug: Some(debug) }));
         }
     }
@@ -143,5 +150,102 @@ mod tests {
                             dec!(3639.40),
                             dec!(3687.15)
         ]), "75.417583840476498769908066813")
+    }
+
+    #[test]
+    fn get_rsi_too_few_values() {
+        let psd = PriceData {
+            pd: vec![ "3451.59".to_string(), "3532.12".to_string(), ],
+            debug: Some(gen_debug_data(None)),
+        };
+
+        let r = MyRsi::default();
+
+        if let Err(stat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            assert_eq!(stat.code(), tonic::Code::InvalidArgument);
+        } else {
+            panic!("get_rsi did not return any error as expected");
+        }
+    }
+
+    #[test]
+    fn get_rsi_zero_values() {
+        let psd = PriceData {
+            pd: Vec::new(),
+            debug: Some(gen_debug_data(None)),
+        };
+
+        let r = MyRsi::default();
+
+        if let Err(stat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            assert_eq!(stat.code(), tonic::Code::InvalidArgument);
+        } else {
+            panic!("get_rsi did not return any error as expected");
+        }
+    }
+
+    #[test]
+    fn get_rsi_too_many_values() {
+        let mut pd = Vec::with_capacity(81);
+
+        for _ in 0..81 {
+            pd.push("3639.94".to_string());
+        }
+
+        let psd = PriceData {
+            pd,
+            debug: Some(gen_debug_data(None)),
+        };
+
+        let r = MyRsi::default();
+
+        if let Err(stat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            assert_eq!(stat.code(), tonic::Code::InvalidArgument);
+        } else {
+            panic!("get_rsi did not return any error as expected");
+        }
+    }
+
+    #[test]
+    fn get_rsi_success_case() {
+        let pd1 = vec![
+            "3451.59".to_string(),
+            "3532.12".to_string(),
+            "3545.91".to_string(),
+            "3670.85".to_string(),
+            "3580.32".to_string(),
+            "3556.94".to_string(),
+            "3639.40".to_string(),
+            "3687.15".to_string()
+        ];
+
+        let debug = gen_debug_data(None);
+        let uuid_orig = debug.get_uuid();
+
+        let psd = PriceData {
+            pd: pd1,
+            debug: Some(debug),
+        };
+
+        let r = MyRsi::default();
+
+        if let Ok(rsidat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            let rsidat = rsidat.into_inner();
+            if let RsiData { rsival, debug: Some(DebugData { ts: _, uuid }) } = rsidat {
+                assert_eq!(
+                    rsival,
+                    "75.417583840476498769908066813".to_string()
+                );
+
+                assert_eq!(
+                    uuid,
+                    uuid_orig
+                );
+            } else {
+                panic!("get_rsi did not return debug data");
+            }
+        } else {
+            panic!("get_rsi returned error when not supposed to");
+        }
     }
 }
