@@ -7,7 +7,7 @@ import (
 )
 
 func TestEMA(t *testing.T) {
-	expected := "12.80000"
+	expected := "13.422222"
 	actual, err := EMA([]string{"14", "13", "14", "12", "13"})
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)
@@ -24,7 +24,7 @@ func TestEMAInvalidPrice(t *testing.T) {
 	expected := ""
 	actual, err := EMA([]string{"1.0", "not-a-price", "3.0"})
 	assert.NotNil(t, err)
-	assert.EqualError(t, err, "invalid price value: 'not-a-price'")
+	assert.EqualError(t, err, "invalid price value: 'not-a-price', can't convert not-a-price to decimal: exponent is not numeric")
 	assert.Equal(t, expected, actual)
 }
 

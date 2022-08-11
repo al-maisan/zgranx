@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alphabot-fi/T-801/internal/proto/base"
 	"github.com/alphabot-fi/T-801/internal/proto/exa"
 )
 
@@ -104,14 +105,14 @@ func signReq(apiKey, secretKey, method, domain, path string) (*url.Values, error
 	return &params, nil
 }
 
-func Pair2string(p *exa.Pair) string {
+func Pair2string(p *base.Pair) string {
 	if p != nil {
 		return strings.ToLower(p.Base.String()) + strings.ToLower(p.Quote.String())
 	}
 	return ""
 }
 
-func String2pair(s string) (*exa.Pair, error) {
+func String2pair(s string) (*base.Pair, error) {
 	qs := []string{"usdt", "usdc", "usd", "eur", "jpy", "chf", "cad", "krw"}
 	for _, q := range qs {
 		if !strings.HasSuffix(s, q) {
@@ -119,17 +120,17 @@ func String2pair(s string) (*exa.Pair, error) {
 		}
 		ss := strings.Split(s, q)
 		b, q := ss[0], q
-		ba, ok := exa.Asset_value[strings.ToUpper(b)]
+		ba, ok := base.Asset_value[strings.ToUpper(b)]
 		if !ok {
 			err := fmt.Errorf("unknown base asset: '%s'", b)
 			return nil, err
 		}
-		qa, ok := exa.Asset_value[strings.ToUpper(q)]
+		qa, ok := base.Asset_value[strings.ToUpper(q)]
 		if !ok {
 			err := fmt.Errorf("unknown quote asset: '%s'", q)
 			return nil, err
 		}
-		return &exa.Pair{Base: exa.Asset(ba), Quote: exa.Asset(qa)}, nil
+		return &base.Pair{Base: base.Asset(ba), Quote: base.Asset(qa)}, nil
 	}
 	err := fmt.Errorf("unknown pair: '%s'", s)
 	log.Error(err)

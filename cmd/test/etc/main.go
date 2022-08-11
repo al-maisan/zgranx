@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alphabot-fi/T-801/internal/proto/base"
 	"github.com/alphabot-fi/T-801/internal/proto/exa"
 	"github.com/alphabot-fi/T-801/internal/proto/monitor"
 	_ "github.com/go-sql-driver/mysql"
@@ -284,7 +285,7 @@ func getBalances(c *grpc.ClientConn, exchange string) {
 	}
 }
 
-func pair2string(p *exa.Pair) string {
+func pair2string(p *base.Pair) string {
 	if p == nil {
 		return ""
 	}
@@ -390,24 +391,24 @@ func cancelOrders(c *grpc.ClientConn, exchange string, ids []string) {
 	}
 }
 
-func getPair(sym string) (*exa.Pair, error) {
+func getPair(sym string) (*base.Pair, error) {
 	ss := strings.Split(sym, "-")
 	if len(ss) != 2 {
 		err := fmt.Errorf("invalid pair: '%s'", sym)
 		return nil, err
 	}
 	b, q := ss[0], ss[1]
-	ba, ok := exa.Asset_value[strings.ToUpper(b)]
+	ba, ok := base.Asset_value[strings.ToUpper(b)]
 	if !ok {
 		err := fmt.Errorf("unknown base asset: '%s'", b)
 		return nil, err
 	}
-	qa, ok := exa.Asset_value[strings.ToUpper(q)]
+	qa, ok := base.Asset_value[strings.ToUpper(q)]
 	if !ok {
 		err := fmt.Errorf("unknown quote asset: '%s'", q)
 		return nil, err
 	}
-	return &exa.Pair{Base: exa.Asset(ba), Quote: exa.Asset(qa)}, nil
+	return &base.Pair{Base: base.Asset(ba), Quote: base.Asset(qa)}, nil
 }
 
 func getTypeAndSide(otype string) (exa.OrderType, exa.Side, error) {

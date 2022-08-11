@@ -24,7 +24,7 @@ func TestSMAInvalidPrice(t *testing.T) {
 	expected := ""
 	actual, err := SMA([]string{"1.0", "not-a-price", "3.0"})
 	assert.NotNil(t, err)
-	assert.EqualError(t, err, "invalid price value: 'not-a-price'")
+	assert.EqualError(t, err, "invalid price value: 'not-a-price', can't convert not-a-price to decimal: exponent is not numeric")
 	assert.Equal(t, expected, actual)
 }
 

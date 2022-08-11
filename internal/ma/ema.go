@@ -17,38 +17,46 @@ func EMA(prices []string) (string, error) {
 		return "", errors.New("empty price array")
 	}
 	var (
-		zero, wm, pema, ema decimal.Decimal
-		sma                 string
-		err                 error
+		// c = current price
+		// p = previous period's EMA (a SMA is used for the first period's
+		//     calculations)
+		// k = exponential smoothing constant
+		//
+		// EMA = (k * (c - p)) + p
+		zero, k, p, ema decimal.Decimal
+		sma             string
+		err             error
 	)
 
 	sma, err = SMA(prices)
 	if err != nil {
 		return "", err
 	}
-	pema, err = decimal.NewFromString(sma)
+	p, err = decimal.NewFromString(sma)
 	if err != nil {
-		return "", fmt.Errorf("invalid SMA value: '%s'", sma)
+		err = fmt.Errorf("invalid SMA value: '%s', %v", sma, err)
+		log.Error(err)
+		return "", err
 	}
-	ema = pema
+	ema = p
 
 	zero = decimal.NewFromFloat(0.0)
-	wm = decimal.NewFromFloat(2.0).Div(decimal.NewFromInt(int64(len(prices) + 1)))
-	log.Infof("1>>   wm = %s", wm.String())
+	k = decimal.NewFromFloat(2.0).Div(decimal.NewFromInt(int64(len(prices) + 1)))
 
 	for pi := len(prices) - 2; pi >= 0; pi-- {
-		log.Infof("2>> pema = %s", pema.String())
-		pv, err := decimal.NewFromString(prices[pi])
+		c, err := decimal.NewFromString(prices[pi])
 		if err != nil {
-			return "", fmt.Errorf("invalid price value: '%s'", prices[pi])
+			err = fmt.Errorf("invalid price value: '%s', %v", prices[pi], err)
+			log.Error(err)
+			return "", err
 		}
-		if pv.LessThanOrEqual(zero) {
-			return "", fmt.Errorf("price value out of range: '%s'", prices[pi])
+		if c.LessThanOrEqual(zero) {
+			err = fmt.Errorf("price value out of range: '%s', %v", prices[pi], err)
+			log.Error(err)
+			return "", err
 		}
-		log.Infof("3>> cval = %s", pv.String())
-		ema = pv.Sub(pema).Mul(wm).Add(pema)
-		log.Infof("4>>  ema = %s", ema.String())
-		pema = ema
+		ema = c.Sub(p).Mul(k).Add(p)
+		p = ema
 	}
 
 	return ema.StringFixed(6), nil

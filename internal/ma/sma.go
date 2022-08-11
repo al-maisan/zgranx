@@ -8,8 +8,11 @@ import (
 )
 
 func SMA(prices []string) (string, error) {
+	var err error
 	if len(prices) == 0 {
-		return "", errors.New("empty price array")
+		err = errors.New("empty price array")
+		log.Error(err)
+		return "", err
 	}
 	var pvs []decimal.Decimal
 	zero := decimal.NewFromFloat(0.0)
@@ -17,10 +20,14 @@ func SMA(prices []string) (string, error) {
 	for _, p := range prices {
 		pv, err := decimal.NewFromString(p)
 		if err != nil {
-			return "", fmt.Errorf("invalid price value: '%s'", p)
+			err = fmt.Errorf("invalid price value: '%s', %v", p, err)
+			log.Error(err)
+			return "", err
 		}
 		if pv.LessThanOrEqual(zero) {
-			return "", fmt.Errorf("price value out of range: '%s'", p)
+			err = fmt.Errorf("price value out of range: '%s'", p)
+			log.Error(err)
+			return "", err
 		}
 		pvs = append(pvs, pv)
 	}
