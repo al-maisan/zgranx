@@ -4,7 +4,6 @@ use tonic::{Request, Response, Status};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
 use rust_decimal_macros::dec;
-use sqlx::mysql::MySqlPoolOptions;
 use tokio_test;
 
 pub mod protos;
