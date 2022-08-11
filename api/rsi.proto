@@ -5,8 +5,8 @@ package rsi;
 
 option go_package = "internal/proto/monitor";
 
-service rsi {
-  rpc get_rsi (PriceData) returns (RsiData);
+service Rsi {
+  rpc GetRsi (PriceData) returns (RsiData);
 }
 
 message PriceData {
