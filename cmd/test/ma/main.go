@@ -64,6 +64,38 @@ func main() {
 				},
 			},
 			{
+				Name:  "ema",
+				Usage: "calculate exponential moving average",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "server-address",
+						Usage:       "server address (e.g. \"localhost:50051\")",
+						Required:    false,
+						Destination: &saddr,
+					},
+					&cli.StringSliceFlag{
+						Name:        "prices",
+						Usage:       "1+ price",
+						Aliases:     []string{"p"},
+						Required:    true,
+						Destination: &prices,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					if saddr == "" {
+						saddr = defaultAddr
+					}
+					log.Info("EMA, saddr = ", saddr)
+					conn, err := grpc.Dial(saddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+					if err != nil {
+						log.Fatalf("did not connect: %v", err)
+					}
+					defer conn.Close()
+					cma(conn, prices.Value(), false)
+					return nil
+				},
+			},
+			{
 				Name:  "sma",
 				Usage: "calculate simple moving average",
 				Flags: []cli.Flag{
@@ -85,13 +117,13 @@ func main() {
 					if saddr == "" {
 						saddr = defaultAddr
 					}
-					log.Info("cancel-orders, saddr = ", saddr)
+					log.Info("SMA, saddr = ", saddr)
 					conn, err := grpc.Dial(saddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 					if err != nil {
 						log.Fatalf("did not connect: %v", err)
 					}
 					defer conn.Close()
-					sma(conn, prices.Value())
+					cma(conn, prices.Value(), true)
 					return nil
 				},
 			},
@@ -122,8 +154,8 @@ func ping(c *grpc.ClientConn) {
 	log.Infof("ping response from moving average service at %v, version('%s')", res.ResponseTime.AsTime().UTC(), res.Version)
 }
 
-func sma(c *grpc.ClientConn, prices []string) {
-	cma := ma.NewMAClient(c)
+func cma(c *grpc.ClientConn, prices []string, simple bool) {
+	client := ma.NewMAClient(c)
 
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -134,8 +166,17 @@ func sma(c *grpc.ClientConn, prices []string) {
 		Period:      uint32(len(prices)),
 		Prices:      prices,
 	}
-	log.Infof("SMA at %v (%s)", time.Now().UTC(), req.GetRequestId())
-	res, err := cma.S(ctx, &req)
+	var (
+		res *ma.MAResponse
+		err error
+	)
+	if simple {
+		log.Infof("SMA at %v (%s)", time.Now().UTC(), req.GetRequestId())
+		res, err = client.S(ctx, &req)
+	} else {
+		log.Infof("EMA at %v (%s)", time.Now().UTC(), req.GetRequestId())
+		res, err = client.E(ctx, &req)
+	}
 	if err != nil {
 		log.Errorf("failed to obtain SMA, %v", err)
 		return
