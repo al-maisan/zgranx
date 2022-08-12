@@ -4,6 +4,8 @@ use tonic::{Request, Response, Status};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
 use rust_decimal_macros::dec;
+
+#[cfg(test)]
 use tokio_test;
 
 pub mod protos;
@@ -42,6 +44,7 @@ fn gen_debug_data(uuid: Option<String>) -> RequestInfo {
 }
 
 impl RequestInfo {
+    #[allow(dead_code)]
     fn get_uuid(&self) -> String {
         let RequestInfo { ts: _, id } = self;
         return id.clone();
@@ -107,8 +110,10 @@ impl rsi_server::Rsi for MyRsi {
             return Err(Status::new(tonic::Code::InvalidArgument, "too many or too few price values"));
         }
 
-        let pd: Vec<Decimal> = pd.iter().map(|x| { Decimal::from_str(x).unwrap() }).collect();
-
+        let pd: Vec<Decimal> = pd.iter()
+            .map(|x| Decimal::from_str(x))
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| Status::new(tonic::Code::InvalidArgument, format!("String to Decimal conversion error: {}", e)))?;
 
         let rsival = calc_rsi(pd);
 
@@ -248,6 +253,35 @@ mod tests {
             Err(e) => {
                 panic!("get_rsi returned error when not supposed to: {:?}", e);
             }
+        }
+    }
+
+
+    #[test]
+    fn get_rsi_invalid_values() {
+
+        let pd1 = vec![
+            "3451.59".to_string(),
+            "3532.12".to_string(),
+            "3545.91".to_string(),
+            "3670.85".to_string(),
+            "ABC".to_string(),
+            "3556.94".to_string(),
+            "3639.40".to_string(),
+            "3687.15".to_string()
+        ];
+
+        let psd = PriceData {
+            pd: pd1,
+            debug: Some(gen_debug_data(None)),
+        };
+
+        let r = MyRsi::default();
+
+        if let Err(stat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            assert_eq!(stat.code(), tonic::Code::InvalidArgument);
+        } else {
+            panic!("get_rsi did not return any error as expected");
         }
     }
 }
