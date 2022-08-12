@@ -29,9 +29,10 @@ For development purposes you will want to run a local instance of the price data
 
 Now you have a local price database running -- `make pdbprompt` will give you a `mysql` shell. That database is empty though.
 
-Assuming you have a data snapshot in `/tmp/snapshot/T-801/` you can populate it with 5-minute candle data as follows:
+Assuming you have a data snapshot in `/tmp/snapshot/T-801/` you can populate it with 5-minute candle data (using the data import tool (`dit`)) as follows:
 
 ```
+make
 for ds in binance ftx gateio huobi; do bin/dit pod --dsource $ds --period 5M --fpath /tmp/snapshot/T-801/$ds; done
 ```
 
