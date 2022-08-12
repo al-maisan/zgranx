@@ -1,6 +1,6 @@
 # mean reversion bot
 
-* entry condition: EMA or SMA
+* entry condition: SMA
 * exit conditions:
    * take profit
    * stoploss
@@ -10,7 +10,7 @@
 * fund allocation
 * base order limit
 * extra orders
-* trading frequency
+* trading frequency (period, e.g. 1H or 5M)
 * take profit percentage
 * stoploss percentage
 
@@ -18,7 +18,14 @@
 
 * start
 * stop
-* backtest(period)
+* backtest(look-back-interval)
+
+# design
+
+The bot operates a main loop and wakes up every `period` -- it will then check whether
+
+1. any of the exit conditions are met for the open positions, and place orders to close these if/as needed
+1. an entry condition is met and place an order to open a position if it is still inside the configured fund allocation budget
 
 # references
 
