@@ -40,7 +40,7 @@ This will give you 5-minute candles (for btc, eth, bnb, ada, sol, dot, avax, mat
 
 Have fun :-)
 
-Please note: the database content resides in the `/tmp` directory and will thus be wiped every time you restart. If you want a more permanent copy you need to change the `pdbdir` in the `Makefile`.
+Please note: the database content resides in the `/tmp` directory and will thus be wiped every time you restart. If you want a more permanent copy you need to change the `pdbdir` variable in the `Makefile`.
 
 ## back testing
 
@@ -54,5 +54,5 @@ bin/ldd Binance_ETHUSDT_2022_minute.csv
 
 We have a `mariadb` instance running in production that
 
-* is being updated with candle data ([OHLC](https://www.investopedia.com/terms/o/ohlcchart.asp)) every 5 minutes
+* is being updated with 5-minute candle data ([OHLC](https://www.investopedia.com/terms/o/ohlcchart.asp)) continuously
 * has 1-minute candle data for btc and eth going back as far as `2021-01-01`
