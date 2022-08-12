@@ -40,7 +40,10 @@ This will give you 5-minute candles (for btc, eth, bnb, ada, sol, dot, avax, mat
 
 Have fun :-)
 
-Please note: the database content resides in the `/tmp` directory and will thus be wiped every time you restart. If you want a more permanent copy you need to change the `pdbdir` variable in the `Makefile`.
+Please note:
+
+* the database content resides in the `/tmp` directory and will thus be wiped every time you restart. If you want a more permanent copy you need to change the `pdbdir` variable in the `Makefile`.
+* `dit` uses `INSERT IGNORE` statements on tables that have uniqueness constraints i.e. it is idempotent
 
 ## back testing
 
