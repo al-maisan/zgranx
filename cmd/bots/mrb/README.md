@@ -12,8 +12,9 @@
 * base order limit
 * extra orders
 * trading frequency (period, e.g. 1H or 5M)
-* take profit percentage
 * stoploss percentage
+* buy percentile
+* sell percentile
 
 # commands
 
