@@ -21,3 +21,6 @@ FROM ohlc, asset ba, asset qa, data_source ds
 WHERE ba.id=base AND qa.id=quote AND ds.id=data_source_id
 GROUP BY ds.name, year(ts)
 ORDER BY 3 DESC
+
+
+SELECT close from ohlc WHERE data_source_id=3 and base=1 and quote=10 order by ts desc limit 10;

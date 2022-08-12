@@ -7,7 +7,7 @@
 
 # parameters
 
-* SMA lenght
+* SMA length
 * fund allocation (in quote asset (usdt))
 * base order limit
 * extra orders
