@@ -1,0 +1,25 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "internal/proto/ma";
+
+
+service MA {
+  rpc S (MARequest) returns (MAResponse) {}
+  /* for EMA the last price is the most recent one */
+  rpc E (MARequest) returns (MAResponse) {}
+}
+
+
+message MARequest {
+  google.protobuf.Timestamp request_time = 1;
+  string request_id = 2;
+  uint32 period = 3;
+  repeated string prices = 4;
+}
+
+message MAResponse {
+  google.protobuf.Timestamp response_time = 1;
+  string request_id = 2;
+  string result = 3;
+}

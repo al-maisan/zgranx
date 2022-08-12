@@ -21,16 +21,24 @@ build: proto
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/dit/main.go
 	rm -f $(BIN_DIR)/etc
 	go build -o $(BIN_DIR)/etc -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/etc/main.go
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/test/etc/main.go
 	rm -f $(BIN_DIR)/huobi
 	go build -o $(BIN_DIR)/huobi -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/exa/huobi/main.go
+	rm -f $(BIN_DIR)/ma
+	go build -o $(BIN_DIR)/ma -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/ma/main.go
+	rm -f $(BIN_DIR)/tma
+	go build -o $(BIN_DIR)/tma -v -ldflags \
+  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/test/ma/main.go
 
 
 proto:
 	$(shell find internal/ | grep pb.go$ | xargs rm -f)
 	protoc --go_out=. --go-grpc_out=. api/monitor.proto
 	protoc --experimental_allow_proto3_optional --go_out=. --go-grpc_out=. api/exa.proto
+	protoc --experimental_allow_proto3_optional --go_out=. --go-grpc_out=. api/ma.proto
+	protoc --experimental_allow_proto3_optional --go_opt=module=github.com/alphabot-fi/T-801 --go_out=. --go-grpc_out=. api/base.proto
 
 
 dockerinit:

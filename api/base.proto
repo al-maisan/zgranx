@@ -1,8 +1,8 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
-option go_package = "internal/proto/base";
 
 package base;
+option go_package = "github.com/alphabot-fi/T-801/internal/proto/base";
 
 message RequestInfo {
   google.protobuf.Timestamp ts = 1; // timestamp
