@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
+import "api/base.proto";
 
 option go_package = "internal/proto/exa";
 
@@ -9,25 +10,6 @@ service EXA {
   rpc GetOpenOrders (GetOpenOrdersRequest) returns (GetOpenOrdersResponse) {}
   rpc CancelOrders (CancelOrdersRequest) returns (CancelOrdersResponse) {}
   rpc PlaceOrder (PlaceOrderRequest) returns (PlaceOrderResponse) {}
-}
-
-enum Asset {
-   NO_ASSET = 0;
-   BTC = 1;
-   ETH = 2;
-   BNB = 3;
-   ADA = 4;
-   SOL = 5;
-   DOT = 6;
-   AVAX = 7;
-   MATIC = 8;
-   LTC = 9;
-   USDT = 10;
-}
-
-message Pair{
-   Asset base = 1;
-   Asset quote = 2;
 }
 
 enum Side {
@@ -88,7 +70,7 @@ message Order {
    string account_id = 2;
    string id = 3;
    string client_order_id = 4;
-   Pair pair = 5;
+   base.Pair pair = 5;
    string amount = 6;
    optional string price = 7;
    Side side = 8;
@@ -133,7 +115,7 @@ message PlaceOrderRequest {
   string api_secret = 4;
   string exchange = 5;
   string account_id = 6;
-  Pair pair = 7;
+  base.Pair pair = 7;
   OrderType type = 8;
   string amount = 9;
   optional string price = 10;

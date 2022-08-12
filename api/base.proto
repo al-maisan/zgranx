@@ -1,0 +1,29 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+package base;
+option go_package = "github.com/alphabot-fi/T-801/internal/proto/base";
+
+message RequestInfo {
+  google.protobuf.Timestamp ts = 1; // timestamp
+  string id = 2;
+}
+
+enum Asset {
+   NO_ASSET = 0;
+   BTC = 1;
+   ETH = 2;
+   BNB = 3;
+   ADA = 4;
+   SOL = 5;
+   DOT = 6;
+   AVAX = 7;
+   MATIC = 8;
+   LTC = 9;
+   USDT = 10;
+}
+
+message Pair{
+   Asset base = 1;
+   Asset quote = 2;
+}

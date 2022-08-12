@@ -6,6 +6,7 @@ option go_package = "internal/proto/ma";
 
 service MA {
   rpc S (MARequest) returns (MAResponse) {}
+  /* for EMA the last price is the most recent one */
   rpc E (MARequest) returns (MAResponse) {}
 }
 
