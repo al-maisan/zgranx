@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/alphabot-fi/T-801/internal/cg/prices"
 	"github.com/alphabot-fi/T-801/internal/ohlc"
@@ -112,6 +113,19 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "price-db-ping",
+				Aliases: []string{"ping"},
+				Usage:   "check whether the price db is up and receiving data",
+				Action: func(c *cli.Context) error {
+					log.Info("price db ping")
+					err := dbPing(db)
+					if err != nil {
+						return err
+					}
+					return nil
+				},
+			},
 		},
 	}
 
@@ -119,6 +133,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func dbPing(db *sqlx.DB) error {
+	var latest, now time.Time
+	err := db.Get(&latest, `SELECT MAX(ts) from ohlc`)
+	if err != nil {
+		log.Errorf("failed to get latest ohlc time stamp, %v", err)
+		return err
+	}
+	now = time.Now().UTC()
+	delta := int(now.Sub(latest).Minutes())
+	log.Infof("got OHLC time stamp: %s, age: %d minutes", latest, delta)
+	if delta > 0 {
+		err = fmt.Errorf("stale OHLC time stamp (%s) -- %d minutes", latest, delta)
+		log.Warn(err)
+		fmt.Println(err)
+		return err
+	}
+	fmt.Printf("price db is live and up to date, latest time stamp: %s\n", latest)
+	return nil
 }
 
 func getDSN() string {
