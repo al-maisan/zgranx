@@ -145,7 +145,7 @@ func dbPing(db *sqlx.DB) error {
 	now = time.Now().UTC()
 	delta := int(now.Sub(latest).Minutes())
 	log.Infof("got OHLC time stamp: %s, age: %d minutes", latest, delta)
-	if delta > 0 {
+	if delta > 10 {
 		err = fmt.Errorf("stale OHLC time stamp (%s) -- %d minutes", latest, delta)
 		log.Warn(err)
 		fmt.Println(err)
