@@ -14,6 +14,13 @@ pdbinitdir="$(ROOT_DIR)/deployments/pdb"
 
 all: build
 
+clean:
+	rm -f $(BIN_DIR)/dit
+	rm -f $(BIN_DIR)/etc
+	rm -f $(BIN_DIR)/huobi
+	rm -f $(BIN_DIR)/ma
+	rm -f $(BIN_DIR)/tma
+	rm -rf internal/proto
 
 build: proto
 	rm -f $(BIN_DIR)/dit

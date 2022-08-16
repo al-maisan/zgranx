@@ -21,3 +21,9 @@ FROM ohlc, asset ba, asset qa, data_source ds
 WHERE ba.id=base AND qa.id=quote AND ds.id=data_source_id
 GROUP BY ds.name, year(ts)
 ORDER BY 3 DESC
+
+SELECT ba.symbol, ds.name, period, year(ts) as year, count(*) as count
+FROM ohlc, asset ba, data_source ds
+WHERE ba.id=base AND ds.id=data_source_id
+GROUP BY ba.symbol, ds.name, period, year(ts)
+ORDER BY 5 DESC

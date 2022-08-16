@@ -6,3 +6,4 @@ utils/Cargo.lock
 rsi_bot/target/
 .env
 internal/proto/
+bin/
