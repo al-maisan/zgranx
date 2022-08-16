@@ -2,6 +2,7 @@ rsi_service/src/protos/
 rsi_service/target/
 utils/src/protos/
 utils/target/
+utils/Cargo.lock
 rsi_bot/target/
 .env
 internal/proto/
