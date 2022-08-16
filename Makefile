@@ -36,9 +36,9 @@ build: proto
 proto:
 	$(shell find internal/ | grep pb.go$ | xargs rm -f)
 	protoc --go_out=. --go-grpc_out=. api/monitor.proto
-	protoc --experimental_allow_proto3_optional --go_out=. --go-grpc_out=. api/exa.proto
-	protoc --experimental_allow_proto3_optional --go_out=. --go-grpc_out=. api/ma.proto
-	protoc --experimental_allow_proto3_optional --go_opt=module=github.com/alphabot-fi/T-801 --go_out=. --go-grpc_out=. api/base.proto
+	protoc --experimental_allow_proto3_optional --proto_path=api/ --go_out=. --go-grpc_out=. api/exa.proto
+	protoc --experimental_allow_proto3_optional --proto_path=api/ --go_out=. --go-grpc_out=. api/ma.proto
+	protoc --experimental_allow_proto3_optional --go_opt=module=github.com/alphabot-fi/T-801 --proto_path=api/ --go_out=. --go-grpc_out=. api/base.proto
 
 
 dockerinit:
