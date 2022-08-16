@@ -43,6 +43,7 @@ impl RequestInfo {
     }
 }
 
+#[derive(Debug, Default)]
 pub struct MyMonitor;
 
 #[tonic::async_trait]
