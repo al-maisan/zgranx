@@ -1,4 +1,7 @@
 rsi_service/src/protos/
 rsi_service/target/
+utils/src/protos/
+utils/target/
+rsi_bot/target/
 .env
 internal/proto/
