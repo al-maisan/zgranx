@@ -647,14 +647,11 @@ dependencies = [
 name = "rsi_service"
 version = "0.1.0"
 dependencies = [
- "prost",
- "prost-types",
  "rust_decimal",
  "rust_decimal_macros",
  "tokio",
  "tokio-test",
  "tonic",
- "tonic-build",
  "utils",
 ]
 
