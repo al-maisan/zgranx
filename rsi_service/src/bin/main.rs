@@ -1,9 +1,12 @@
 use tonic::transport::Server;
-use rsi_service::protos::{
-    monitor::monitor_server::MonitorServer,
-    rsi::rsi_server::RsiServer,
+use utils::{
+    MyMonitor,
+    protos::{
+        monitor::monitor_server::MonitorServer,
+        rsi::rsi_server::RsiServer,
+    }
 };
-use rsi_service::{MyMonitor,MyRsi};
+use rsi_service::MyRsi;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

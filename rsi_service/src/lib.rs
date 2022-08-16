@@ -1,5 +1,3 @@
-use std::time::SystemTime;
-use uuid::Uuid;
 use tonic::{Request, Response, Status};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
@@ -8,48 +6,13 @@ use rust_decimal_macros::dec;
 #[cfg(test)]
 use tokio_test;
 
-pub mod protos;
-use protos::{
-    base::RequestInfo,
-    rsi::{PriceData, RsiData, rsi_server},
-    monitor::{PingRequest, PingResponse, monitor_server},
+use utils::{
+    gen_debug_data,
+    protos::{
+        base::RequestInfo,
+        rsi::{PriceData, RsiData, rsi_server},
+    }
 };
-
-pub fn gen_prost_ts() -> ::prost_types::Timestamp {
-    let ct = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
-    let mut cs = ct.as_secs();
-    let cn = ct.as_nanos() - ((ct.as_secs() * 1000000000) as u128);
-
-    // This ping function will serve inaccurate timestamps starting from Fri, 11 Apr 2262 23:47:16 UTC
-    if cs > i64::MAX as u64 {
-        cs = i64::MAX as u64;
-    }
-
-    ::prost_types::Timestamp {
-        seconds: cs as i64,
-        nanos: cn as i32
-    }
-}
-
-fn gen_debug_data(uuid: Option<String>) -> RequestInfo {
-    let uuid = match uuid {
-        Some(s) => s,
-        None => Uuid::new_v4().as_simple().to_string(),
-    };
-
-    RequestInfo { 
-        ts: Some(gen_prost_ts()),
-        id: uuid,
-    }
-}
-
-impl RequestInfo {
-    #[allow(dead_code)]
-    fn get_uuid(&self) -> String {
-        let RequestInfo { ts: _, id } = self;
-        return id.clone();
-    }
-}
 
 fn calc_rsi(pd: Vec<Decimal>) -> String {
     let mut up: Vec<Decimal> = Vec::with_capacity(14);
@@ -79,23 +42,6 @@ fn calc_smma(pd: Vec<Decimal>) -> Decimal {
     pd.iter().enumerate().fold(dec!(0), |accum, e| {
         (accum * Decimal::from(e.0) + e.1)/(Decimal::from(e.0 + 1))
     })
-}
-
-#[derive(Debug, Default)]
-pub struct MyMonitor {}
-
-#[tonic::async_trait]
-impl monitor_server::Monitor for MyMonitor {
-    async fn ping(&self, request: Request<PingRequest>) -> Result<Response<PingResponse>, Status> {
-        println!("Got a request: {:?}", request);
-
-        let reply = PingResponse {
-            response_time: Some(gen_prost_ts()),
-            version: String::from("0.0.1")
-        };
-
-        Ok(Response::new(reply))
-    }
 }
 
 #[derive(Debug, Default)]
