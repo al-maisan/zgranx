@@ -1,7 +1,8 @@
 syntax = "proto3";
 import "google/protobuf/timestamp.proto";
-import "api/base.proto";
+import "base.proto";
 
+package exa;
 option go_package = "internal/proto/exa";
 
 

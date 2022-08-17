@@ -1,52 +1,18 @@
-use std::time::SystemTime;
-use uuid::Uuid;
 use tonic::{Request, Response, Status};
 use rust_decimal::Decimal;
 use rust_decimal::prelude::*;
 use rust_decimal_macros::dec;
+
+#[cfg(test)]
 use tokio_test;
 
-pub mod protos;
-use protos::{
-    base::RequestInfo,
-    rsi::{PriceData, RsiData, rsi_server},
-    monitor::{PingRequest, PingResponse, monitor_server},
+use utils::{
+    gen_debug_data,
+    protos::{
+        base::RequestInfo,
+        rsi::{PriceData, RsiData, rsi_server},
+    }
 };
-
-pub fn gen_prost_ts() -> ::prost_types::Timestamp {
-    let ct = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
-    let mut cs = ct.as_secs();
-    let cn = ct.as_nanos() - ((ct.as_secs() * 1000000000) as u128);
-
-    // This ping function will serve inaccurate timestamps starting from Fri, 11 Apr 2262 23:47:16 UTC
-    if cs > i64::MAX as u64 {
-        cs = i64::MAX as u64;
-    }
-
-    ::prost_types::Timestamp {
-        seconds: cs as i64,
-        nanos: cn as i32
-    }
-}
-
-fn gen_debug_data(uuid: Option<String>) -> RequestInfo {
-    let uuid = match uuid {
-        Some(s) => s,
-        None => Uuid::new_v4().as_simple().to_string(),
-    };
-
-    RequestInfo { 
-        ts: Some(gen_prost_ts()),
-        id: uuid,
-    }
-}
-
-impl RequestInfo {
-    fn get_uuid(&self) -> String {
-        let RequestInfo { ts: _, id } = self;
-        return id.clone();
-    }
-}
 
 fn calc_rsi(pd: Vec<Decimal>) -> String {
     let mut up: Vec<Decimal> = Vec::with_capacity(14);
@@ -79,23 +45,6 @@ fn calc_smma(pd: Vec<Decimal>) -> Decimal {
 }
 
 #[derive(Debug, Default)]
-pub struct MyMonitor {}
-
-#[tonic::async_trait]
-impl monitor_server::Monitor for MyMonitor {
-    async fn ping(&self, request: Request<PingRequest>) -> Result<Response<PingResponse>, Status> {
-        println!("Got a request: {:?}", request);
-
-        let reply = PingResponse {
-            response_time: Some(gen_prost_ts()),
-            version: String::from("0.0.1")
-        };
-
-        Ok(Response::new(reply))
-    }
-}
-
-#[derive(Debug, Default)]
 pub struct MyRsi {}
 
 #[tonic::async_trait]
@@ -107,8 +56,10 @@ impl rsi_server::Rsi for MyRsi {
             return Err(Status::new(tonic::Code::InvalidArgument, "too many or too few price values"));
         }
 
-        let pd: Vec<Decimal> = pd.iter().map(|x| { Decimal::from_str(x).unwrap() }).collect();
-
+        let pd: Vec<Decimal> = pd.iter()
+            .map(|x| Decimal::from_str(x))
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| Status::new(tonic::Code::InvalidArgument, format!("String to Decimal conversion error: {}", e)))?;
 
         let rsival = calc_rsi(pd);
 
@@ -248,6 +199,35 @@ mod tests {
             Err(e) => {
                 panic!("get_rsi returned error when not supposed to: {:?}", e);
             }
+        }
+    }
+
+
+    #[test]
+    fn get_rsi_invalid_values() {
+
+        let pd1 = vec![
+            "3451.59".to_string(),
+            "3532.12".to_string(),
+            "3545.91".to_string(),
+            "3670.85".to_string(),
+            "ABC".to_string(),
+            "3556.94".to_string(),
+            "3639.40".to_string(),
+            "3687.15".to_string()
+        ];
+
+        let psd = PriceData {
+            pd: pd1,
+            debug: Some(gen_debug_data(None)),
+        };
+
+        let r = MyRsi::default();
+
+        if let Err(stat) = tokio_test::block_on(<MyRsi as rsi_server::Rsi>::get_rsi(&r, Request::new(psd))) {
+            assert_eq!(stat.code(), tonic::Code::InvalidArgument);
+        } else {
+            panic!("get_rsi did not return any error as expected");
         }
     }
 }
