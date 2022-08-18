@@ -182,5 +182,7 @@ func getDSN() string {
 		log.Fatal("T_801_PDB_DATABASE variable not set")
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true&time_zone=UTC", user, passwd, host, port, database)
+	log.Infof("host: '%s'", host)
+	log.Infof("database: '%s'", database)
 	return dsn
 }

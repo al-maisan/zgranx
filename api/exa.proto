@@ -25,6 +25,7 @@ enum OrderType {
    LIMIT = 2;
    LIMIT_FOK = 3;
    IOC = 4;
+   LIMIT_GRID = 5;
 }
 
 enum OrderState {

@@ -7,3 +7,4 @@ rsi_bot/target/
 .env
 internal/proto/
 bin/
+p-set-env

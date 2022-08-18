@@ -175,6 +175,9 @@ func String2type(s string) (exa.OrderType, error) {
 	if strings.HasSuffix(s, "-ioc") {
 		return exa.OrderType_IOC, nil
 	}
+	if strings.HasSuffix(s, "-limit-grid") {
+		return exa.OrderType_LIMIT_GRID, nil
+	}
 	err := fmt.Errorf("unknown order type: '%s'", s)
 	log.Error(err)
 	return 0, err
