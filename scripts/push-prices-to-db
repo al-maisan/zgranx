@@ -3,16 +3,17 @@ set -e
 execution_start=`date -R`
 
 data_source="coingecko"
+periods="${1:-1}"
 
 # tlp=${HOME}/Downloads/T-801/${data_source}
 tlp=/tmp/snapshot/T-801/${data_source}
 ldate=$(ls ${tlp} | sort -r | head -n 1)
-lpath=$(ls ${tlp}/${ldate}/5min | sort -r | head -n 1)
 
-fpath=${tlp}/${ldate}/5min/${lpath}
-echo ">> ${ldate} >> ${lpath} >> ${fpath}"
-
-bin/dit ppd --dsource ${data_source} --period 5M --fpath ${fpath}
+for lpath in $(ls ${tlp}/${ldate}/5min | sort -r | head -n ${periods}); do
+   fpath=${tlp}/${ldate}/5min/${lpath}
+   echo ">> ${ldate} >> ${lpath} >> ${fpath}"
+   bin/dit ppd --dsource ${data_source} --period 5M --fpath ${fpath}
+done
 
 execution_end=`date -R`
 date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'

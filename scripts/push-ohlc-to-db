@@ -3,21 +3,23 @@ set -e
 execution_start=`date -R`
 
 if [ -z $1 ]; then
-   echo "no data source file specified"
+   echo "no data source specified"
    exit 1
 fi
 
 data_source="$1"
+periods="${2:-1}"
+
 
 # tlp=${HOME}/Downloads/T-801/${data_source}
 tlp=/tmp/snapshot/T-801/${data_source}
 ldate=$(ls ${tlp} | sort -r | head -n 1)
-lpath=$(ls ${tlp}/${ldate}/ohlc | sort -r | head -n 1)
+for lpath in $(ls ${tlp}/${ldate}/ohlc | sort -r | head -n ${periods}); do
+   fpath=${tlp}/${ldate}/ohlc/${lpath}
+   echo ">> ${ldate} >> ${lpath} >> ${fpath}"
 
-fpath=${tlp}/${ldate}/ohlc/${lpath}
-echo ">> ${ldate} >> ${lpath} >> ${fpath}"
-
-bin/dit pod --dsource ${data_source} --period 5M --fpath ${fpath}
+   bin/dit pod --dsource ${data_source} --period 5M --fpath ${fpath}
+done
 
 execution_end=`date -R`
 date -u -d @$(($(date -d "$execution_end" '+%s') - $(date -d "$execution_start" '+%s'))) '+%T'

@@ -7,3 +7,9 @@ export T_801_PDB_USER=pT-801
 export T_801_PDB_PASSWORD=ppassword
 export T_801_PDB_ROOT_PASSWORD=rppassword
 export T_801_PDB_DATABASE=pT-801
+
+export PT_801_PDB_USER=pdbu
+export PT_801_PDB_PASSWORD='nokisJoblat2shrash#'
+export PT_801_PDB_DATABASE=pdb
+export PT_801_PDB_HOST=45.63.42.8
+export PT_801_PDB_PORT=3306
