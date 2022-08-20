@@ -21,7 +21,7 @@ if [ ${period} != '5M' ]; then
 else
    ohlc_path=${tlp}/${ldate}/ohlc
 fi
-for lpath in $(ls ${ohlc_path} | sort -r | egrep -v '(M|H|D)' | head -n ${periods}); do
+for lpath in $(ls ${ohlc_path} | sort -r | egrep -v '(M|H|d|w|m)' | head -n ${periods}); do
    if [ ${period} != '5M' ]; then
       fpath=${tlp}/${ldate}/ohlc/${period}/${lpath}
    else
