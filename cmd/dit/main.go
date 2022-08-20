@@ -35,6 +35,8 @@ func main() {
 	defer db.Close()
 
 	var dsource, fpath, period string
+	var mpa int
+
 	app := &cli.App{
 		Name:  "dit",
 		Usage: "data import tool",
@@ -117,9 +119,18 @@ func main() {
 				Name:    "price-db-ping",
 				Aliases: []string{"ping"},
 				Usage:   "check whether the price db is up and receiving data",
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:        "price-delay",
+						Aliases:     []string{"pd"},
+						Usage:       "max age of most recent price (in minutes)",
+						Required:    true,
+						Destination: &mpa,
+					},
+				},
 				Action: func(c *cli.Context) error {
 					log.Info("price db ping")
-					err := dbPing(db)
+					err := dbPing(db, mpa)
 					if err != nil {
 						return err
 					}
@@ -135,7 +146,7 @@ func main() {
 	}
 }
 
-func dbPing(db *sqlx.DB) error {
+func dbPing(db *sqlx.DB, mpa int) error {
 	var latest, now time.Time
 	err := db.Get(&latest, `SELECT MAX(ts) from ohlc`)
 	if err != nil {
@@ -145,7 +156,7 @@ func dbPing(db *sqlx.DB) error {
 	now = time.Now().UTC()
 	delta := int(now.Sub(latest).Minutes())
 	log.Infof("got OHLC time stamp: %s, age: %d minutes", latest, delta)
-	if delta > 10 {
+	if delta > mpa {
 		err = fmt.Errorf("stale OHLC time stamp (%s) -- %d minutes", latest, delta)
 		log.Warn(err)
 		fmt.Println(err)

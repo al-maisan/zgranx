@@ -51,31 +51,8 @@ INSERT INTO data_source(name, uri) VALUES('gateio', 'https://www.gate.io/');
 INSERT INTO data_source(name, uri) VALUES('huobi', 'https://www.huobi.com/');
 INSERT INTO data_source(name, uri) VALUES('kucoin', 'https://www.kucoin.com/');
 
-
-DROP TABLE IF EXISTS pair;
-CREATE TABLE pair (
-     id MEDIUMINT NOT NULL AUTO_INCREMENT,
-     base MEDIUMINT NOT NULL,
-     quote MEDIUMINT NOT NULL,
-     symbol VARCHAR(30) NOT NULL,
-     PRIMARY KEY (id),
-     FOREIGN KEY (base) REFERENCES asset (id),
-     FOREIGN KEY (quote) REFERENCES asset (id),
-     unique(symbol)
- );
-INSERT INTO pair(base, quote, symbol) VALUES(1,10,'btc-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(2,10,'eth-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(3,10,'bnb-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(4,10,'ada-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(5,10,'sol-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(6,10,'dot-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(7,10,'avax-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(8,10,'matic-usdt');
-INSERT INTO pair(base, quote, symbol) VALUES(9,10,'ltc-usdt');
-
 DROP TABLE IF EXISTS price;
 CREATE TABLE price (
-     id MEDIUMINT NOT NULL AUTO_INCREMENT,
      ts TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
      base MEDIUMINT NOT NULL,
      quote MEDIUMINT NOT NULL,
@@ -86,7 +63,6 @@ CREATE TABLE price (
      -- one of: '1M', '3M', '5M', '15M', '30M', '1H', '2H', '3H', '4H', '1d',
      --         '1w', '1m'
      period VARCHAR(8) NOT NULL DEFAULT '5M',
-     PRIMARY KEY (id),
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
@@ -97,7 +73,6 @@ CREATE TABLE price (
 
 DROP TABLE IF EXISTS ohlc;
 CREATE TABLE ohlc (
-     id MEDIUMINT NOT NULL AUTO_INCREMENT,
      ts TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
      base MEDIUMINT NOT NULL,
      quote MEDIUMINT NOT NULL,
@@ -111,7 +86,6 @@ CREATE TABLE ohlc (
      period VARCHAR(8) NOT NULL DEFAULT '5M',
      count INT UNSIGNED,
      q_volume DECIMAL(30,8),
-     PRIMARY KEY (id),
      FOREIGN KEY (base) REFERENCES asset (id),
      FOREIGN KEY (quote) REFERENCES asset (id),
      FOREIGN KEY (data_source_id) REFERENCES data_source (id),
