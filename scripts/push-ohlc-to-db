@@ -12,16 +12,22 @@ period="$2"
 periods="${3:-1}"
 
 
+
 # tlp=${HOME}/Downloads/T-801/${data_source}
 tlp=/tmp/snapshot/T-801/${data_source}
 ldate=$(ls ${tlp} | sort -r | head -n 1)
-for lpath in $(ls ${tlp}/${ldate}/ohlc | sort -r | egrep -v '(M|H|D)' | head -n ${periods}); do
+if [ ${period} != '5M' ]; then
+   ohlc_path=${tlp}/${ldate}/ohlc/${period}
+else
+   ohlc_path=${tlp}/${ldate}/ohlc
+fi
+for lpath in $(ls ${ohlc_path} | sort -r | egrep -v '(M|H|D)' | head -n ${periods}); do
    if [ ${period} != '5M' ]; then
       fpath=${tlp}/${ldate}/ohlc/${period}/${lpath}
    else
       fpath=${tlp}/${ldate}/ohlc/${lpath}
    fi
-   echo ">> ${ldate} >> ${lpath} >> ${fpath}"
+   echo ">> `date --date="@$lpath"` >> ${fpath}"
 
    bin/dit pod --dsource ${data_source} --period ${period} --fpath ${fpath}
 done
