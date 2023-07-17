@@ -20,7 +20,7 @@ clean:
 	rm -f $(BIN_DIR)/huobi
 	rm -f $(BIN_DIR)/ma
 	rm -f $(BIN_DIR)/tma
-	rm -f $(BIN_DIR)/mrb
+	# rm -f $(BIN_DIR)/mrb
 	rm -rf internal/proto
 
 build: proto
@@ -40,8 +40,8 @@ build: proto
 	go build -o $(BIN_DIR)/tma -v -ldflags \
   "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/test/ma/main.go
 	rm -f $(BIN_DIR)/mrb
-	go build -o $(BIN_DIR)/mrb -v -ldflags \
-  "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/bots/mrb/main.go
+	# go build -o $(BIN_DIR)/mrb -v -ldflags \
+    # "-X main.rev=$(version) -X main.bts=$(timestamp)" cmd/bots/mrb/main.go
 
 
 proto:
@@ -74,7 +74,7 @@ sdbhalt:
 
 sdbprompt:
 	-docker container prune -f >/dev/null 2>&1
-	-docker run --network T-801net -it --rm mariadb mysql -h sT-801db -u $(T_801_SDB_USER) -D $(T_801_SDB_DATABASE) -p$(T_801_SDB_PASSWORD)
+	-docker run --network T-801net -it --rm mariadb mariadb -h sT-801db -u $(T_801_SDB_USER) -D $(T_801_SDB_DATABASE) -p$(T_801_SDB_PASSWORD)
 
 
 pdbinit: pdbhalt
@@ -82,7 +82,7 @@ pdbinit: pdbhalt
 	-sudo rm -rf $(pdbdir)
 	-docker run -p 3307:3306 --detach -v $(pdbdir):/var/lib/mysql:z  -v $(pdbinitdir):/docker-entrypoint-initdb.d:z --network T-801net --name pT-801db --env MARIADB_USER=$(T_801_PDB_USER) --env MARIADB_PASSWORD=$(T_801_PDB_PASSWORD) --env MARIADB_ROOT_PASSWORD=$(T_801_PDB_ROOT_PASSWORD) --env MARIADB_DATABASE=$(T_801_PDB_DATABASE) mariadb:latest
 	-sleep 4
-	-docker exec -i pT-801db mysql -u root -p$(T_801_PDB_ROOT_PASSWORD) -D$(T_801_PDB_DATABASE) -e "SET GLOBAL max_allowed_packet=1072731894;"
+	-docker exec -i pT-801db mariadb -u root -p$(T_801_PDB_ROOT_PASSWORD) -D$(T_801_PDB_DATABASE) -e "SET GLOBAL max_allowed_packet=1072731894;"
 
 
 pdbstart:
@@ -96,4 +96,4 @@ pdbhalt:
 
 pdbprompt:
 	-docker container prune -f >/dev/null 2>&1
-	-docker run --network T-801net -it --rm mariadb mysql -h pT-801db -u $(T_801_PDB_USER) -D $(T_801_PDB_DATABASE) -p$(T_801_PDB_PASSWORD)
+	-docker run --network T-801net -it --rm mariadb mariadb -h pT-801db -u $(T_801_PDB_USER) -D $(T_801_PDB_DATABASE) -p$(T_801_PDB_PASSWORD)
